@@ -5,7 +5,13 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { RoutePoint, DriverCost, PricingParams, PricingResult } from "./types";
+import {
+  RoutePoint,
+  DriverCost,
+  PricingParams,
+  PricingResult,
+  VehicleType,
+} from "./types";
 import {
   parseCSV,
   parseValoresCSV,
@@ -17,6 +23,7 @@ import { calculatePriceEnterprise } from "./pricingEngine";
 
 const L = (window as any).L;
 const ALL_VALUE = "__ALL__";
+const DEFAULT_ROUTE_VEHICLE: VehicleType = "carro";
 
 const createTeardropIcon = (
   color: string,
@@ -74,6 +81,9 @@ const App: React.FC = () => {
     weightMode: "BRACKETS",
     packagePrice300g: 3,
   });
+  const [routeVehicles, setRouteVehicles] = useState<
+    Record<string, VehicleType>
+  >({});
 
   const mapLRef = useRef<any>(null);
   const mapRRef = useRef<any>(null);
@@ -172,14 +182,16 @@ const App: React.FC = () => {
       ).size;
       const distKm =
         pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
+      const vehicle = routeVehicles[name] ?? DEFAULT_ROUTE_VEHICLE;
       const pricing = calculatePriceEnterprise(
         distKm,
-        pricingParams,
+        { ...pricingParams, vehicle },
         pts.length,
         uniqueStops
       );
       return {
         nome: name,
+        vehicle,
         faturamento: pricing,
         pacotes: pts.length,
         paradas: uniqueStops,
@@ -193,7 +205,7 @@ const App: React.FC = () => {
         return multiplier * naturalRouteSort(a.nome, b.nome);
       return multiplier * (a[proSortKey] - b[proSortKey]);
     });
-  }, [routeNames, data, pricingParams, proSortKey, proSortDir]);
+  }, [routeNames, data, pricingParams, proSortKey, proSortDir, routeVehicles]);
 
   const activeDriverStats = useMemo(() => {
     const filtered =
@@ -216,15 +228,16 @@ const App: React.FC = () => {
       const uniqueStops = new Set(pts.map((p) => `${p.lat},${p.long}`)).size;
       const distKm =
         pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
+      const vehicle = routeVehicles[name] ?? DEFAULT_ROUTE_VEHICLE;
       const pricing = calculatePriceEnterprise(
         distKm,
-        pricingParams,
+        { ...pricingParams, vehicle },
         pts.length,
         uniqueStops
       );
       return total + pricing.finalPrice;
     }, 0);
-  }, [data, routeNames, pricingParams]);
+  }, [data, routeNames, pricingParams, routeVehicles]);
 
   const activeDriverData = useMemo(() => {
     let matches: DriverCost[] = [];
@@ -282,9 +295,10 @@ const App: React.FC = () => {
     const plannedDist =
       plannedPts[0].distancia_dentro_rota_km +
       plannedPts[0].distancia_primeiro_ponto_km;
+    const vehicle = routeVehicles[selectedRoute] ?? DEFAULT_ROUTE_VEHICLE;
     const plannedPricing = calculatePriceEnterprise(
       plannedDist,
-      pricingParams,
+      { ...pricingParams, vehicle },
       plannedPts.length,
       plannedUniqueStops
     );
@@ -297,7 +311,7 @@ const App: React.FC = () => {
       plannedTotal: plannedPricing.finalPrice,
       efficiency: plannedUniqueStops / plannedPts.length,
     };
-  }, [data, selectedRoute, pricingParams]);
+  }, [data, selectedRoute, pricingParams, routeVehicles]);
 
   const updateSide = useCallback(
     (
@@ -386,10 +400,12 @@ const App: React.FC = () => {
           const distKm =
             myFullRoute[0].distancia_dentro_rota_km +
             myFullRoute[0].distancia_primeiro_ponto_km;
+          const routeVehicle =
+            routeVehicles[p.routeName] ?? DEFAULT_ROUTE_VEHICLE;
 
           const pricing = calculatePriceEnterprise(
             distKm,
-            pricingParams,
+            { ...pricingParams, vehicle: routeVehicle },
             myFullRoute.length,
             uniqueStops
           );
@@ -480,8 +496,20 @@ const App: React.FC = () => {
       });
       return displayPts;
     },
-    [data, routeNames, pricingParams, activeDriverData]
+    [data, routeNames, pricingParams, activeDriverData, routeVehicles]
   );
+
+  useEffect(() => {
+    setRouteVehicles((prev) => {
+      const next = { ...prev };
+      routeNames.forEach((routeName) => {
+        if (!next[routeName]) {
+          next[routeName] = DEFAULT_ROUTE_VEHICLE;
+        }
+      });
+      return next;
+    });
+  }, [routeNames]);
 
   useEffect(() => {
     const leftPts = updateSide(
@@ -989,9 +1017,11 @@ const App: React.FC = () => {
               const distKm =
                 pts[0].distancia_dentro_rota_km +
                 pts[0].distancia_primeiro_ponto_km;
+              const vehicle =
+                routeVehicles[selectedRoute] ?? DEFAULT_ROUTE_VEHICLE;
               const pricing = calculatePriceEnterprise(
                 distKm,
-                pricingParams,
+                { ...pricingParams, vehicle },
                 pts.length,
                 uniqueStops
               );
@@ -1151,6 +1181,11 @@ const App: React.FC = () => {
                             Multi-Pacotes (R$)
                           </div>
                         </th>
+                        <th className="p-2 text-[10px] font-black uppercase tracking-widest text-center cursor-pointer group hover:bg-slate-800 transition-colors">
+                          <div className="flex items-center justify-center">
+                            Veículo
+                          </div>
+                        </th>
                         <th
                           className="p-2 text-[10px] font-black uppercase tracking-widest text-right cursor-pointer group hover:bg-slate-800 transition-colors"
                           onClick={() => handleSortPro("faturamento")}
@@ -1238,6 +1273,25 @@ const App: React.FC = () => {
                                 (pricingParams.packagePrice300g / 2)
                               ).toFixed(2)}
                             </span>
+                          </td>
+                          <td className="p-1 text-center">
+                            <select
+                              value={route.vehicle}
+                              onChange={(event) => {
+                                const nextVehicle =
+                                  event.target.value as VehicleType;
+                                setRouteVehicles((prev) => ({
+                                  ...prev,
+                                  [route.nome]: nextVehicle,
+                                }));
+                              }}
+                              className="bg-white text-[10px] font-black text-slate-700 uppercase border border-slate-200 rounded-lg px-2 py-1 hover:border-emerald-400 focus:border-emerald-500 outline-none"
+                            >
+                              <option value="moto">Moto</option>
+                              <option value="carro">Carro</option>
+                              <option value="van">Van</option>
+                              <option value="caminhao">Caminhão</option>
+                            </select>
                           </td>
                           <td className="p-1 text-right">
                             <span
