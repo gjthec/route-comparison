@@ -212,10 +212,31 @@ const App: React.FC = () => {
       selectedDriver === ALL_VALUE
         ? data
         : data.filter((p) => p.nome === selectedDriver);
-    if (!filtered.length) return null;
-    const uniqueStops = new Set(
-      filtered.map((p) => `${p.lat.toFixed(6)},${p.long.toFixed(6)}`)
-    ).size;
+
+    if (!filtered.length) {
+      return null;
+    }
+
+    let motoristas_agrupados = {};
+    let uniqueStops = 0;
+    filtered.forEach((item) => {
+      if (item.nome in motoristas_agrupados) {
+        motoristas_agrupados[item.nome].pontos.push(item);
+      } else {
+        motoristas_agrupados[item.nome] = {
+          pontos: [item],
+        };
+      }
+    });
+
+    for (let key in motoristas_agrupados) {
+      uniqueStops += new Set(
+        motoristas_agrupados[key].pontos.map(
+          (p) => `${p.lat.toFixed(6)},${p.long.toFixed(6)}`
+        )
+      ).size;
+    }
+
     return {
       totalPackages: filtered.length,
       uniqueStops: uniqueStops,
@@ -223,20 +244,32 @@ const App: React.FC = () => {
   }, [data, selectedDriver]);
 
   const operationPricingTotal = useMemo(() => {
-    return routeNames.reduce((total, name) => {
-      const pts = data.filter((p) => p.routeName === name);
-      const uniqueStops = new Set(pts.map((p) => `${p.lat},${p.long}`)).size;
-      const distKm =
-        pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
-      const vehicle = routeVehicles[name] ?? DEFAULT_ROUTE_VEHICLE;
-      const pricing = calculatePriceEnterprise(
-        distKm,
-        { ...pricingParams, vehicle },
-        pts.length,
-        uniqueStops
-      );
-      return total + pricing.finalPrice;
-    }, 0);
+    return routeNames.reduce(
+      (total, name) => {
+        const pts = data.filter((p) => p.routeName === name);
+        const uniqueStops = new Set(pts.map((p) => `${p.lat},${p.long}`)).size;
+        const distKm =
+          pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
+        const vehicle = routeVehicles[name] ?? DEFAULT_ROUTE_VEHICLE;
+
+        const pricing = calculatePriceEnterprise(
+          distKm,
+          { ...pricingParams, vehicle },
+          pts.length,
+          uniqueStops
+        );
+        return {
+          valorTotal: total?.valorTotal + pricing.finalPrice,
+          paradasUnicas: total?.paradasUnicas + uniqueStops,
+          totalEncomendas: total?.totalEncomendas + pts.length,
+        };
+      },
+      {
+        valorTotal: 0,
+        paradasUnicas: 0,
+        totalEncomendas: 0,
+      }
+    );
   }, [data, routeNames, pricingParams, routeVehicles]);
 
   const activeDriverData = useMemo(() => {
@@ -1088,53 +1121,34 @@ const App: React.FC = () => {
                   Total Projetado (Operação)
                 </p>
                 <div className="text-5xl font-black tracking-tighter">
-                  R$ {operationPricingTotal.toFixed(2)}
+                  R$ {operationPricingTotal?.valorTotal.toFixed(2)}
                 </div>
                 <div className="text-[10px] mt-4 font-bold text-white/40 uppercase">
                   Base: {routeNames.length} rotas otimizadas
                 </div>
               </div>
-              {/* <div className="py-12 text-center border-4 border-dashed border-slate-100 rounded-[3rem]">
-                  <p className="text-slate-400 text-[10px] uppercase font-black px-12 leading-relaxed italic">Selecione uma rota no mapa sugerido para ver o detalhamento financeiro por trecho.</p>
-                </div> */}
             </div>
           )}
-          {/* <div className="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 grid grid-cols-2 gap-1 shadow-sm">
-            <div className="col-span-2">
-              <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1 block">Valor Ref. Pacote 300g (Regra 50%)</label>
-              <input 
-                type="number" step="0.1" value={pricingParams.packagePrice300g} 
-                onChange={e => setPricingParams({...pricingParams, packagePrice300g: parseFloat(e.target.value) || 0})}
-                className="w-full bg-white p-3 rounded-xl text-sm font-black text-slate-900 border border-indigo-200 outline-none"
-              />
+          {
+            <div className="grid grid-cols-3 gap-1">
+              <div className="bg-emerald-50 p-2 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center">
+                <span className="text-[10px] font-black uppercase text-emerald-400 mb-1">
+                  Pacotes
+                </span>
+                <div className="text-3xl font-black">
+                  {operationPricingTotal?.totalEncomendas}
+                </div>
+              </div>
+              <div className="bg-blue-50 p-2 rounded-3xl border border-blue-100 flex flex-col items-center justify-center">
+                <span className="text-[10px] font-black uppercase text-blue-400 mb-1">
+                  Paradas
+                </span>
+                <div className="text-3xl font-black">
+                  {operationPricingTotal?.paradasUnicas}
+                </div>
+              </div>
             </div>
-            <div>
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Veículo</label>
-              <select 
-                value={pricingParams.vehicle} 
-                onChange={e => setPricingParams({...pricingParams, vehicle: e.target.value as any})} 
-                className="w-full bg-white p-3 rounded-xl text-xs font-black text-slate-900 border border-slate-200 uppercase outline-none"
-              >
-                <option value="moto">MOTO</option>
-                <option value="carro">CARRO</option>
-                <option value="van">VAN</option>
-                <option value="caminhao">CAMINHÃO</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Trânsito</label>
-              <select 
-                value={pricingParams.traffic} 
-                onChange={e => setPricingParams({...pricingParams, traffic: e.target.value as any})} 
-                className="w-full bg-white p-3 rounded-xl text-[10px] font-black text-slate-900 border border-slate-200 uppercase"
-              >
-                <option value="LIVRE">Livre</option>
-                <option value="MODERADO">Moderado</option>
-                <option value="INTENSO">Intenso</option>
-              </select>
-            </div>
-          </div> */}
-
+          }
           {/* TABELA DE RESUMO PRO - SÓ APARECE EM VISUALIZAÇÃO GERAL */}
           {true && (
             <div className="mt-12 space-y-4 pb-20">
@@ -1143,7 +1157,7 @@ const App: React.FC = () => {
                   Resumo por Rota Sugerida
                 </h3>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  {routeNames.length + 1} Trechos
+                  {routeNames.length} Trechos
                 </span>
               </div>
 
@@ -1278,8 +1292,8 @@ const App: React.FC = () => {
                             <select
                               value={route.vehicle}
                               onChange={(event) => {
-                                const nextVehicle =
-                                  event.target.value as VehicleType;
+                                const nextVehicle = event.target
+                                  .value as VehicleType;
                                 setRouteVehicles((prev) => ({
                                   ...prev,
                                   [route.nome]: nextVehicle,
