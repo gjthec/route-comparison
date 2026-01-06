@@ -1,0 +1,5 @@
+{
+  "name": "Route Comparison Pro",
+  "description": "A high-performance route visualization and comparison tool using Leaflet and React, featuring real-time data smoothing and discrepancy analysis.",
+  "requestFramePermissions": []
+}

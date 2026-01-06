@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "ecbr-2025"
+  },
+  "targets": {
+    "ecbr-2025": {
+      "hosting": {
+        "routecomp": [
+          "route-comparison-pro"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Route Comparison Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+  <style>
+    body, html, #root { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #f8fafc; }
+    
+    /* REMOVE QUALQUER QUADRADO OU FUNDO DO CLUSTER */
+    .marker-cluster, .marker-cluster div, 
+    .marker-cluster-small, .marker-cluster-small div,
+    .marker-cluster-medium, .marker-cluster-medium div,
+    .marker-cluster-large, .marker-cluster-large div {
+      background: none !important;
+      background-color: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      margin: 0 !important;
+    }
+
+    /* Pino Teardrop */
+    .custom-pin-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .teardrop {
+      width: 38px;
+      height: 38px;
+      border-radius: 50% 50% 50% 0;
+      background: var(--pin-color, #1e293b);
+      position: absolute;
+      transform: rotate(-45deg);
+      border: 2px solid white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10;
+    }
+
+    .teardrop-inner {
+      width: 26px;
+      height: 26px;
+      background: white;
+      border-radius: 50%;
+      transform: rotate(45deg); 
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 900;
+      font-size: 8px;
+      color: #0f172a;
+      white-space: nowrap;
+      padding: 0 2px;
+      letter-spacing: -0.4px;
+    }
+
+    .cluster-badge {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      background: #ef4444;
+      color: white;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 12px;
+      border: 2px solid white;
+      font-weight: 900;
+      z-index: 30;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      pointer-events: none;
+    }
+
+    .leaflet-popup-content-wrapper { border-radius: 16px; padding: 0; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+    .leaflet-popup-content { margin: 0 !important; min-width: 200px; }
+    
+    /* Estilo para garantir que as options do select fiquem visíveis */
+    select option {
+      background-color: white !important;
+      color: #0f172a !important;
+      padding: 10px;
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
