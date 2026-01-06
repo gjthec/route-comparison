@@ -1083,6 +1083,209 @@ const App: React.FC = () => {
                       <span>{uniqueStops} Pontos</span>
                     </div>
                   </div>
+                  <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Variáveis da Equação (Multiplicadores)
+                      </p>
+                      <p className="text-[10px] font-bold text-slate-400 mt-1">
+                        Custo/km (C_km), fator de veículo (V) e taxa fixa (F)
+                        seguem o veículo selecionado para a rota.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
+                        <span className="text-[9px] font-black uppercase text-slate-400">
+                          C_km
+                        </span>
+                        <div className="text-xs font-mono font-black text-slate-700">
+                          R$ {pricing.base > 0 ? (pricing.base / distKm).toFixed(2) : "0.00"}
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
+                        <span className="text-[9px] font-black uppercase text-slate-400">
+                          V
+                        </span>
+                        <div className="text-xs font-mono font-black text-slate-700">
+                          x{pricing.multipliers.V.toFixed(2)}
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
+                        <span className="text-[9px] font-black uppercase text-slate-400">
+                          Taxa fixa (F)
+                        </span>
+                        <div className="text-xs font-mono font-black text-slate-700">
+                          R$ {pricing.fixedFee.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-black text-slate-500 uppercase">
+                          Peso (kg) - W
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={pricingParams.weightKg}
+                          onChange={(event) =>
+                            updatePricingParam(
+                              "weightKg",
+                              Number(event.target.value)
+                            )
+                          }
+                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
+                        />
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-black text-slate-500 uppercase">
+                          Modo peso
+                        </span>
+                        <select
+                          value={pricingParams.weightMode}
+                          onChange={(event) =>
+                            updatePricingParam(
+                              "weightMode",
+                              event.target.value as PricingParams["weightMode"]
+                            )
+                          }
+                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                        >
+                          <option value="BRACKETS">Faixas</option>
+                          <option value="CONTINUOUS">Contínuo</option>
+                        </select>
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-black text-slate-500 uppercase">
+                          Trânsito - T
+                        </span>
+                        <select
+                          value={pricingParams.traffic}
+                          onChange={(event) =>
+                            updatePricingParam(
+                              "traffic",
+                              event.target.value as PricingParams["traffic"]
+                            )
+                          }
+                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                        >
+                          <option value="LIVRE">Livre</option>
+                          <option value="MODERADO">Moderado</option>
+                          <option value="INTENSO">Intenso</option>
+                          <option value="MUITO_INTENSO">Muito intenso</option>
+                        </select>
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-black text-slate-500 uppercase">
+                          Clima - C
+                        </span>
+                        <select
+                          value={pricingParams.climate}
+                          onChange={(event) =>
+                            updatePricingParam(
+                              "climate",
+                              event.target.value as PricingParams["climate"]
+                            )
+                          }
+                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                        >
+                          <option value="CEU_LIMPO">Céu limpo</option>
+                          <option value="CHUVA_FRACA">Chuva fraca</option>
+                          <option value="CHUVA_FORTE">Chuva forte</option>
+                          <option value="TEMPESTADE">Tempestade</option>
+                        </select>
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-black text-slate-500 uppercase">
+                          SLA
+                        </span>
+                        <select
+                          value={pricingParams.sla}
+                          onChange={(event) =>
+                            updatePricingParam(
+                              "sla",
+                              event.target.value as PricingParams["sla"]
+                            )
+                          }
+                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                        >
+                          <option value="NORMAL">Normal</option>
+                          <option value="SAME_DAY">Same day</option>
+                          <option value="EXPRESS">Express</option>
+                          <option value="IMEDIATA">Imediata</option>
+                        </select>
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-black text-slate-500 uppercase">
+                          Risco - R
+                        </span>
+                        <select
+                          value={pricingParams.risk}
+                          onChange={(event) =>
+                            updatePricingParam(
+                              "risk",
+                              event.target.value as PricingParams["risk"]
+                            )
+                          }
+                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                        >
+                          <option value="BAIXO">Baixo</option>
+                          <option value="MEDIO">Médio</option>
+                          <option value="ALTO">Alto</option>
+                          <option value="MUITO_ALTO">Muito alto</option>
+                        </select>
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-black text-slate-500 uppercase">
+                          Pedidos - S
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="1"
+                          value={pricingParams.pedidos}
+                          onChange={(event) =>
+                            updatePricingParam("pedidos", Number(event.target.value))
+                          }
+                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
+                        />
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-black text-slate-500 uppercase">
+                          Motoristas - S
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="1"
+                          value={pricingParams.motoristas}
+                          onChange={(event) =>
+                            updatePricingParam("motoristas", Number(event.target.value))
+                          }
+                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
+                        />
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-[10px] font-black text-slate-500 uppercase">
+                          Pacote 300g (R$)
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={pricingParams.packagePrice300g}
+                          onChange={(event) =>
+                            updatePricingParam(
+                              "packagePrice300g",
+                              Number(event.target.value)
+                            )
+                          }
+                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
+                        />
+                      </label>
+                    </div>
+                  </div>
                   <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-2">
                     <p className="text-[10px] font-black text-slate-400 tracking-widest mb-4 px-2">
                       Memória de Cálculo (Pro)
@@ -1159,183 +1362,6 @@ const App: React.FC = () => {
               </div>
             </div>
           }
-          <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
-            <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                Variáveis da Equação (Multiplicadores)
-              </p>
-              <p className="text-[10px] font-bold text-slate-400 mt-1">
-                Custo/km, fator de veículo e taxa fixa são definidos pelo tipo
-                de veículo selecionado em cada rota.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <label className="space-y-1">
-                <span className="text-[10px] font-black text-slate-500 uppercase">
-                  Peso (kg) - W
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={pricingParams.weightKg}
-                  onChange={(event) =>
-                    updatePricingParam(
-                      "weightKg",
-                      Number(event.target.value)
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
-                />
-              </label>
-              <label className="space-y-1">
-                <span className="text-[10px] font-black text-slate-500 uppercase">
-                  Modo peso
-                </span>
-                <select
-                  value={pricingParams.weightMode}
-                  onChange={(event) =>
-                    updatePricingParam(
-                      "weightMode",
-                      event.target.value as PricingParams["weightMode"]
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                >
-                  <option value="BRACKETS">Faixas</option>
-                  <option value="CONTINUOUS">Contínuo</option>
-                </select>
-              </label>
-              <label className="space-y-1">
-                <span className="text-[10px] font-black text-slate-500 uppercase">
-                  Trânsito - T
-                </span>
-                <select
-                  value={pricingParams.traffic}
-                  onChange={(event) =>
-                    updatePricingParam(
-                      "traffic",
-                      event.target.value as PricingParams["traffic"]
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                >
-                  <option value="LIVRE">Livre</option>
-                  <option value="MODERADO">Moderado</option>
-                  <option value="INTENSO">Intenso</option>
-                  <option value="MUITO_INTENSO">Muito intenso</option>
-                </select>
-              </label>
-              <label className="space-y-1">
-                <span className="text-[10px] font-black text-slate-500 uppercase">
-                  Clima - C
-                </span>
-                <select
-                  value={pricingParams.climate}
-                  onChange={(event) =>
-                    updatePricingParam(
-                      "climate",
-                      event.target.value as PricingParams["climate"]
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                >
-                  <option value="CEU_LIMPO">Céu limpo</option>
-                  <option value="CHUVA_FRACA">Chuva fraca</option>
-                  <option value="CHUVA_FORTE">Chuva forte</option>
-                  <option value="TEMPESTADE">Tempestade</option>
-                </select>
-              </label>
-              <label className="space-y-1">
-                <span className="text-[10px] font-black text-slate-500 uppercase">
-                  SLA
-                </span>
-                <select
-                  value={pricingParams.sla}
-                  onChange={(event) =>
-                    updatePricingParam(
-                      "sla",
-                      event.target.value as PricingParams["sla"]
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                >
-                  <option value="NORMAL">Normal</option>
-                  <option value="SAME_DAY">Same day</option>
-                  <option value="EXPRESS">Express</option>
-                  <option value="IMEDIATA">Imediata</option>
-                </select>
-              </label>
-              <label className="space-y-1">
-                <span className="text-[10px] font-black text-slate-500 uppercase">
-                  Risco - R
-                </span>
-                <select
-                  value={pricingParams.risk}
-                  onChange={(event) =>
-                    updatePricingParam(
-                      "risk",
-                      event.target.value as PricingParams["risk"]
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                >
-                  <option value="BAIXO">Baixo</option>
-                  <option value="MEDIO">Médio</option>
-                  <option value="ALTO">Alto</option>
-                  <option value="MUITO_ALTO">Muito alto</option>
-                </select>
-              </label>
-              <label className="space-y-1">
-                <span className="text-[10px] font-black text-slate-500 uppercase">
-                  Pedidos - S
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={pricingParams.pedidos}
-                  onChange={(event) =>
-                    updatePricingParam("pedidos", Number(event.target.value))
-                  }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
-                />
-              </label>
-              <label className="space-y-1">
-                <span className="text-[10px] font-black text-slate-500 uppercase">
-                  Motoristas - S
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={pricingParams.motoristas}
-                  onChange={(event) =>
-                    updatePricingParam("motoristas", Number(event.target.value))
-                  }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
-                />
-              </label>
-              <label className="space-y-1">
-                <span className="text-[10px] font-black text-slate-500 uppercase">
-                  Pacote 300g (R$)
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={pricingParams.packagePrice300g}
-                  onChange={(event) =>
-                    updatePricingParam(
-                      "packagePrice300g",
-                      Number(event.target.value)
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
-                />
-              </label>
-            </div>
-          </div>
           {/* TABELA DE RESUMO PRO - SÓ APARECE EM VISUALIZAÇÃO GERAL */}
           {true && (
             <div className="mt-12 space-y-4 pb-20">
