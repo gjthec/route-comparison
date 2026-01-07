@@ -1219,21 +1219,27 @@ const App: React.FC = () => {
                   </div>
                   <div className="text-[12px] md:text-[13px] mt-2 font-bold text-slate-200 uppercase flex flex-wrap gap-3">
                     {[
-                      formatCurrency(proSelection.pricing.base),
-                      formatCurrency(
-                        proSelection.pesoKg * pricingParams.pricePerKg
-                      ),
-                      formatCurrency(
-                        proSelection.volumeM3 * pricingParams.pricePerM3
-                      ),
-                    ].map((value, index) => (
-                      <span
-                        key={index}
-                        className="relative group inline-flex"
-                      >
-                        {value}
-                        <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                          {value}
+                      {
+                        display: formatCurrency(proSelection.pricing.base),
+                        hover: `${proSelection.distKm.toFixed(2)} km`,
+                      },
+                      {
+                        display: formatCurrency(
+                          proSelection.pesoKg * pricingParams.pricePerKg
+                        ),
+                        hover: `${proSelection.pesoKg.toFixed(2)} kg`,
+                      },
+                      {
+                        display: formatCurrency(
+                          proSelection.volumeM3 * pricingParams.pricePerM3
+                        ),
+                        hover: `${proSelection.volumeM3.toFixed(3)} m³`,
+                      },
+                    ].map((item, index) => (
+                      <span key={index} className="relative group inline-flex">
+                        {item.display}
+                        <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+                          {item.hover}
                         </span>
                       </span>
                     ))}
@@ -1665,8 +1671,8 @@ const App: React.FC = () => {
                               }`}
                             >
                               {formatCurrency(route.faturamento.base)}
-                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                                {formatCurrency(route.faturamento.base)}
+                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+                                {route.distancia.toFixed(2)} km
                               </span>
                             </span>
                           </td>
@@ -1675,10 +1681,8 @@ const App: React.FC = () => {
                               {formatCurrency(
                                 route.pesoKg * pricingParams.pricePerKg
                               )}
-                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                                {formatCurrency(
-                                  route.pesoKg * pricingParams.pricePerKg
-                                )}
+                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+                                {route.pesoKg.toFixed(2)} kg
                               </span>
                             </span>
                           </td>
@@ -1687,10 +1691,8 @@ const App: React.FC = () => {
                               {formatCurrency(
                                 route.volumeM3 * pricingParams.pricePerM3
                               )}
-                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                                {formatCurrency(
-                                  route.volumeM3 * pricingParams.pricePerM3
-                                )}
+                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+                                {route.volumeM3.toFixed(3)} m³
                               </span>
                             </span>
                           </td>
