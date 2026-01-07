@@ -872,7 +872,7 @@ const App: React.FC = () => {
               </div>
               {activeDriverStats && (
                 <div className="mt-3 grid grid-cols-3 gap-2">
-                  <div className="bg-white/10 rounded-2xl p-2 text-center">
+                  <div className="bg-white/10 rounded-2xl p-1.5 text-center">
                     <span className="text-[12px] md:text-[11px] font-black uppercase text-emerald-200">
                       Pacotes
                     </span>
@@ -880,7 +880,7 @@ const App: React.FC = () => {
                       {activeDriverStats.totalPackages}
                     </div>
                   </div>
-                  <div className="bg-white/10 rounded-2xl p-2 text-center">
+                  <div className="bg-white/10 rounded-2xl p-1.5 text-center">
                     <span className="text-[12px] md:text-[11px] font-black uppercase text-sky-200">
                       Paradas
                     </span>
@@ -888,7 +888,7 @@ const App: React.FC = () => {
                       {activeDriverStats.uniqueStops}
                     </div>
                   </div>
-                  <div className="bg-white/10 rounded-2xl p-2 text-center">
+                  <div className="bg-white/10 rounded-2xl p-1.5 text-center">
                     <span className="text-[12px] md:text-[11px] font-black uppercase text-violet-200">
                       Diária
                     </span>
@@ -1145,7 +1145,7 @@ const App: React.FC = () => {
                     ).toFixed(2)}
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-2">
-                    <div className="bg-white/10 rounded-2xl p-2 text-center">
+                    <div className="bg-white/10 rounded-2xl p-1.5 text-center">
                       <span className="text-[12px] md:text-[11px] font-black uppercase text-emerald-100">
                         Pacotes
                       </span>
@@ -1153,7 +1153,7 @@ const App: React.FC = () => {
                         {proSelection.pacotes}
                       </div>
                     </div>
-                    <div className="bg-white/10 rounded-2xl p-2 text-center">
+                    <div className="bg-white/10 rounded-2xl p-1.5 text-center">
                       <span className="text-[12px] md:text-[11px] font-black uppercase text-sky-100">
                         Paradas
                       </span>
