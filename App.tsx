@@ -1077,10 +1077,26 @@ const App: React.FC = () => {
                     <div className="text-5xl font-black tracking-tighter text-white">
                       R$ {pricing.finalPrice.toFixed(2)}
                     </div>
-                    <div className="text-[10px] mt-4 font-bold text-slate-400 uppercase flex gap-1">
-                      <span>{distKm.toFixed(2)} KM</span>
-                      <span>{pts.length} Pacotes</span>
-                      <span>{uniqueStops} Pontos</span>
+                    <div className="grid grid-cols-2 gap-2 mt-4">
+                      <div className="bg-white/10 p-2 rounded-2xl border border-white/10 flex flex-col items-center justify-center">
+                        <span className="text-[10px] font-black uppercase text-white/60 mb-1">
+                          Pacotes
+                        </span>
+                        <div className="text-2xl font-black text-white">
+                          {pts.length}
+                        </div>
+                      </div>
+                      <div className="bg-white/10 p-2 rounded-2xl border border-white/10 flex flex-col items-center justify-center">
+                        <span className="text-[10px] font-black uppercase text-white/60 mb-1">
+                          Paradas
+                        </span>
+                        <div className="text-2xl font-black text-white">
+                          {uniqueStops}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-[10px] mt-4 font-bold text-slate-400 uppercase">
+                      {distKm.toFixed(2)} KM
                     </div>
                   </div>
                   <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
@@ -1336,32 +1352,30 @@ const App: React.FC = () => {
                 <div className="text-5xl font-black tracking-tighter">
                   R$ {operationPricingTotal?.valorTotal.toFixed(2)}
                 </div>
+                <div className="grid grid-cols-2 gap-2 mt-4">
+                  <div className="bg-white/10 p-2 rounded-2xl border border-white/10 flex flex-col items-center justify-center">
+                    <span className="text-[10px] font-black uppercase text-white/60 mb-1">
+                      Pacotes
+                    </span>
+                    <div className="text-2xl font-black text-white">
+                      {operationPricingTotal?.totalEncomendas}
+                    </div>
+                  </div>
+                  <div className="bg-white/10 p-2 rounded-2xl border border-white/10 flex flex-col items-center justify-center">
+                    <span className="text-[10px] font-black uppercase text-white/60 mb-1">
+                      Paradas
+                    </span>
+                    <div className="text-2xl font-black text-white">
+                      {operationPricingTotal?.paradasUnicas}
+                    </div>
+                  </div>
+                </div>
                 <div className="text-[10px] mt-4 font-bold text-white/40 uppercase">
                   Base: {routeNames.length} rotas otimizadas
                 </div>
               </div>
             </div>
           )}
-          {
-            <div className="grid grid-cols-3 gap-1">
-              <div className="bg-emerald-50 p-2 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center">
-                <span className="text-[10px] font-black uppercase text-emerald-400 mb-1">
-                  Pacotes
-                </span>
-                <div className="text-3xl font-black">
-                  {operationPricingTotal?.totalEncomendas}
-                </div>
-              </div>
-              <div className="bg-blue-50 p-2 rounded-3xl border border-blue-100 flex flex-col items-center justify-center">
-                <span className="text-[10px] font-black uppercase text-blue-400 mb-1">
-                  Paradas
-                </span>
-                <div className="text-3xl font-black">
-                  {operationPricingTotal?.paradasUnicas}
-                </div>
-              </div>
-            </div>
-          }
           {/* TABELA DE RESUMO PRO - SÓ APARECE EM VISUALIZAÇÃO GERAL */}
           {true && (
             <div className="mt-12 space-y-4 pb-20">
