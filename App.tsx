@@ -1192,19 +1192,19 @@ const App: React.FC = () => {
                   >
                     {proSelection.label}
                   </p>
-                  <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
-                    <span className="text-[11px] md:text-[10px] font-black uppercase text-white/70 leading-none">
-                      Total
-                    </span>
-                    <div className="text-xl md:text-2xl font-black leading-none text-white">
-                      {formatCurrency(
-                        selectedRoute !== ALL_VALUE
-                          ? proSelection.pricing.finalPrice
-                          : operationPricingTotal?.valorTotal || 0
-                      )}
-                    </div>
-                  </div>
                   <div className="mt-2 flex flex-wrap gap-2">
+                    <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
+                      <span className="text-[11px] md:text-[10px] font-black uppercase text-white/70 leading-none">
+                        Total
+                      </span>
+                      <div className="text-xl md:text-2xl font-black leading-none text-white">
+                        {formatCurrency(
+                          selectedRoute !== ALL_VALUE
+                            ? proSelection.pricing.finalPrice
+                            : operationPricingTotal?.valorTotal || 0
+                        )}
+                      </div>
+                    </div>
                     <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
                       <span className="text-[11px] md:text-[10px] font-black uppercase text-emerald-100 leading-none">
                         Pacotes
