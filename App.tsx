@@ -72,14 +72,13 @@ const App: React.FC = () => {
 
   const [pricingParams, setPricingParams] = useState<PricingParams>({
     vehicle: "carro",
-    weightKg: 12,
     traffic: "MODERADO",
     climate: "CEU_LIMPO",
     sla: "NORMAL",
     risk: "BAIXO",
     pedidos: 100,
     motoristas: 100,
-    weightMode: "BRACKETS",
+    pricePerKg: 1.5,
     packagePrice300g: 3,
   });
   const [routeVehicles, setRouteVehicles] = useState<
@@ -204,7 +203,8 @@ const App: React.FC = () => {
         distKm,
         { ...pricingParams, vehicle },
         pts.length,
-        uniqueStops
+        uniqueStops,
+        totalPesoKg
       );
       return {
         nome: name,
@@ -269,19 +269,22 @@ const App: React.FC = () => {
         const uniqueStops = new Set(pts.map((p) => `${p.lat},${p.long}`)).size;
         const distKm =
           pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
+        const totalPesoKg = pts.reduce((sum, p) => sum + (p.peso_kg || 0), 0);
         const vehicle = routeVehicles[name] ?? DEFAULT_ROUTE_VEHICLE;
 
         const pricing = calculatePriceEnterprise(
           distKm,
           { ...pricingParams, vehicle },
           pts.length,
-          uniqueStops
+          uniqueStops,
+          totalPesoKg
         );
         return {
           valorTotal: total?.valorTotal + pricing.finalPrice,
           paradasUnicas: total?.paradasUnicas + uniqueStops,
           totalEncomendas: total?.totalEncomendas + pts.length,
           distanciaTotal: total?.distanciaTotal + distKm,
+          pesoTotalKg: total?.pesoTotalKg + totalPesoKg,
         };
       },
       {
@@ -289,6 +292,7 @@ const App: React.FC = () => {
         paradasUnicas: 0,
         totalEncomendas: 0,
         distanciaTotal: 0,
+        pesoTotalKg: 0,
       }
     );
   }, [data, routeNames, pricingParams, routeVehicles]);
@@ -349,12 +353,17 @@ const App: React.FC = () => {
     const plannedDist =
       plannedPts[0].distancia_dentro_rota_km +
       plannedPts[0].distancia_primeiro_ponto_km;
+    const plannedPesoKg = plannedPts.reduce(
+      (sum, p) => sum + (p.peso_kg || 0),
+      0
+    );
     const vehicle = routeVehicles[selectedRoute] ?? DEFAULT_ROUTE_VEHICLE;
     const plannedPricing = calculatePriceEnterprise(
       plannedDist,
       { ...pricingParams, vehicle },
       plannedPts.length,
-      plannedUniqueStops
+      plannedUniqueStops,
+      plannedPesoKg
     );
 
     return {
@@ -450,6 +459,10 @@ const App: React.FC = () => {
           const uniqueStops = new Set(
             myFullRoute.map((pt) => `${pt.lat},${pt.long}`)
           ).size;
+          const totalPesoKg = myFullRoute.reduce(
+            (sum, pt) => sum + (pt.peso_kg || 0),
+            0
+          );
 
           const distKm =
             myFullRoute[0].distancia_dentro_rota_km +
@@ -461,7 +474,8 @@ const App: React.FC = () => {
             distKm,
             { ...pricingParams, vehicle: routeVehicle },
             myFullRoute.length,
-            uniqueStops
+            uniqueStops,
+            totalPesoKg
           );
 
           const displayPrice =
@@ -654,6 +668,7 @@ const App: React.FC = () => {
       const pts = data.filter((p) => p.routeName === selectedRoute);
       if (!pts.length) return null;
       const uniqueStops = new Set(pts.map((p) => `${p.lat},${p.long}`)).size;
+      const totalPesoKg = pts.reduce((sum, p) => sum + (p.peso_kg || 0), 0);
       const distKm =
         pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
       const vehicle = routeVehicles[selectedRoute] ?? DEFAULT_ROUTE_VEHICLE;
@@ -661,7 +676,8 @@ const App: React.FC = () => {
         distKm,
         { ...pricingParams, vehicle },
         pts.length,
-        uniqueStops
+        uniqueStops,
+        totalPesoKg
       );
       return {
         label: `Projeção: ${selectedRoute}`,
@@ -673,13 +689,15 @@ const App: React.FC = () => {
     }
 
     const distKm = operationPricingTotal?.distanciaTotal || 0;
+    const totalPesoKg = operationPricingTotal?.pesoTotalKg || 0;
     const pacotes = operationPricingTotal?.totalEncomendas || 0;
     const paradas = operationPricingTotal?.paradasUnicas || 0;
     const pricing = calculatePriceEnterprise(
       distKm,
       { ...pricingParams, vehicle: DEFAULT_ROUTE_VEHICLE },
       pacotes,
-      paradas
+      paradas,
+      totalPesoKg
     );
     return {
       label: "Total Projetado (Operação)",
@@ -1223,39 +1241,21 @@ const App: React.FC = () => {
                 <div className="grid grid-cols-3 gap-3">
                   <label className="space-y-1">
                     <span className="text-[10px] font-black text-slate-500 uppercase">
-                      Peso (kg) - W
+                      Preço por KG (R$)
                     </span>
                     <input
                       type="number"
                       min="0"
                       step="0.1"
-                      value={pricingParams.weightKg}
+                      value={pricingParams.pricePerKg}
                       onChange={(event) =>
                         updatePricingParam(
-                          "weightKg",
+                          "pricePerKg",
                           Number(event.target.value)
                         )
                       }
                       className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
                     />
-                  </label>
-                  <label className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-500 uppercase">
-                      Modo peso
-                    </span>
-                    <select
-                      value={pricingParams.weightMode}
-                      onChange={(event) =>
-                        updatePricingParam(
-                          "weightMode",
-                          event.target.value as PricingParams["weightMode"]
-                        )
-                      }
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                    >
-                      <option value="BRACKETS">Faixas</option>
-                      <option value="CONTINUOUS">Contínuo</option>
-                    </select>
                   </label>
                   <label className="space-y-1">
                     <span className="text-[10px] font-black text-slate-500 uppercase">
