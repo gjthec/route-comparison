@@ -69,6 +69,7 @@ export interface PricingParams {
   pedidos: number;
   motoristas: number;
   pricePerKg: number;
+  pricePerM3: number;
   packagePrice300g: number; // Novo campo para regra de 50%
 }
 

@@ -78,7 +78,8 @@ const App: React.FC = () => {
     risk: "BAIXO",
     pedidos: 100,
     motoristas: 100,
-    pricePerKg: 1.5,
+    pricePerKg: 0.15,
+    pricePerM3: 0.1,
     packagePrice300g: 3,
   });
   const [routeVehicles, setRouteVehicles] = useState<
@@ -194,17 +195,16 @@ const App: React.FC = () => {
       const distKm =
         pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
       const totalPesoKg = pts.reduce((sum, p) => sum + (p.peso_kg || 0), 0);
-      const totalVolumeCm3 = pts.reduce(
-        (sum, p) => sum + (p.volume_cm3 || 0),
-        0
-      );
+      const totalVolumeM3 =
+        pts.reduce((sum, p) => sum + (p.volume_cm3 || 0), 0) / 1_000_000;
       const vehicle = routeVehicles[name] ?? DEFAULT_ROUTE_VEHICLE;
       const pricing = calculatePriceEnterprise(
         distKm,
         { ...pricingParams, vehicle },
         pts.length,
         uniqueStops,
-        totalPesoKg
+        totalPesoKg,
+        totalVolumeM3
       );
       return {
         nome: name,
@@ -214,7 +214,7 @@ const App: React.FC = () => {
         paradas: uniqueStops,
         distancia: distKm,
         pesoKg: totalPesoKg,
-        volumeCm3: totalVolumeCm3,
+        volumeM3: totalVolumeM3,
       };
     });
 
@@ -270,6 +270,8 @@ const App: React.FC = () => {
         const distKm =
           pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
         const totalPesoKg = pts.reduce((sum, p) => sum + (p.peso_kg || 0), 0);
+        const totalVolumeM3 =
+          pts.reduce((sum, p) => sum + (p.volume_cm3 || 0), 0) / 1_000_000;
         const vehicle = routeVehicles[name] ?? DEFAULT_ROUTE_VEHICLE;
 
         const pricing = calculatePriceEnterprise(
@@ -277,7 +279,8 @@ const App: React.FC = () => {
           { ...pricingParams, vehicle },
           pts.length,
           uniqueStops,
-          totalPesoKg
+          totalPesoKg,
+          totalVolumeM3
         );
         return {
           valorTotal: total?.valorTotal + pricing.finalPrice,
@@ -285,6 +288,7 @@ const App: React.FC = () => {
           totalEncomendas: total?.totalEncomendas + pts.length,
           distanciaTotal: total?.distanciaTotal + distKm,
           pesoTotalKg: total?.pesoTotalKg + totalPesoKg,
+          volumeTotalM3: total?.volumeTotalM3 + totalVolumeM3,
         };
       },
       {
@@ -293,6 +297,7 @@ const App: React.FC = () => {
         totalEncomendas: 0,
         distanciaTotal: 0,
         pesoTotalKg: 0,
+        volumeTotalM3: 0,
       }
     );
   }, [data, routeNames, pricingParams, routeVehicles]);
@@ -357,13 +362,16 @@ const App: React.FC = () => {
       (sum, p) => sum + (p.peso_kg || 0),
       0
     );
+    const plannedVolumeM3 =
+      plannedPts.reduce((sum, p) => sum + (p.volume_cm3 || 0), 0) / 1_000_000;
     const vehicle = routeVehicles[selectedRoute] ?? DEFAULT_ROUTE_VEHICLE;
     const plannedPricing = calculatePriceEnterprise(
       plannedDist,
       { ...pricingParams, vehicle },
       plannedPts.length,
       plannedUniqueStops,
-      plannedPesoKg
+      plannedPesoKg,
+      plannedVolumeM3
     );
 
     return {
@@ -463,6 +471,9 @@ const App: React.FC = () => {
             (sum, pt) => sum + (pt.peso_kg || 0),
             0
           );
+          const totalVolumeM3 =
+            myFullRoute.reduce((sum, pt) => sum + (pt.volume_cm3 || 0), 0) /
+            1_000_000;
 
           const distKm =
             myFullRoute[0].distancia_dentro_rota_km +
@@ -475,7 +486,8 @@ const App: React.FC = () => {
             { ...pricingParams, vehicle: routeVehicle },
             myFullRoute.length,
             uniqueStops,
-            totalPesoKg
+            totalPesoKg,
+            totalVolumeM3
           );
 
           const displayPrice =
@@ -669,6 +681,8 @@ const App: React.FC = () => {
       if (!pts.length) return null;
       const uniqueStops = new Set(pts.map((p) => `${p.lat},${p.long}`)).size;
       const totalPesoKg = pts.reduce((sum, p) => sum + (p.peso_kg || 0), 0);
+      const totalVolumeM3 =
+        pts.reduce((sum, p) => sum + (p.volume_cm3 || 0), 0) / 1_000_000;
       const distKm =
         pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
       const vehicle = routeVehicles[selectedRoute] ?? DEFAULT_ROUTE_VEHICLE;
@@ -677,19 +691,23 @@ const App: React.FC = () => {
         { ...pricingParams, vehicle },
         pts.length,
         uniqueStops,
-        totalPesoKg
+        totalPesoKg,
+        totalVolumeM3
       );
       return {
         label: `Projeção: ${selectedRoute}`,
         distKm,
         pacotes: pts.length,
         paradas: uniqueStops,
+        pesoKg: totalPesoKg,
+        volumeM3: totalVolumeM3,
         pricing,
       };
     }
 
     const distKm = operationPricingTotal?.distanciaTotal || 0;
     const totalPesoKg = operationPricingTotal?.pesoTotalKg || 0;
+    const totalVolumeM3 = operationPricingTotal?.volumeTotalM3 || 0;
     const pacotes = operationPricingTotal?.totalEncomendas || 0;
     const paradas = operationPricingTotal?.paradasUnicas || 0;
     const pricing = calculatePriceEnterprise(
@@ -697,13 +715,16 @@ const App: React.FC = () => {
       { ...pricingParams, vehicle: DEFAULT_ROUTE_VEHICLE },
       pacotes,
       paradas,
-      totalPesoKg
+      totalPesoKg,
+      totalVolumeM3
     );
     return {
       label: "Total Projetado (Operação)",
       distKm,
       pacotes,
       paradas,
+      pesoKg: totalPesoKg,
+      volumeM3: totalVolumeM3,
       pricing,
     };
   }, [
@@ -1187,8 +1208,32 @@ const App: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="text-[13px] md:text-[14px] mt-3 font-bold text-slate-200 uppercase flex gap-1">
-                    <span>{proSelection.distKm.toFixed(2)} KM</span>
+                  <div className="text-[12px] md:text-[13px] mt-2 font-bold text-slate-200 uppercase flex flex-wrap gap-3">
+                    <span
+                      title={`${proSelection.distKm.toFixed(2)}km x R$ ${
+                        proSelection.distKm > 0
+                          ? (
+                              proSelection.pricing.base / proSelection.distKm
+                            ).toFixed(2)
+                          : "0.00"
+                      }`}
+                    >
+                      {proSelection.distKm.toFixed(2)} KM
+                    </span>
+                    <span
+                      title={`${proSelection.pesoKg.toFixed(2)}kg x R$ ${pricingParams.pricePerKg.toFixed(
+                        2
+                      )}`}
+                    >
+                      {proSelection.pesoKg.toFixed(2)} KG
+                    </span>
+                    <span
+                      title={`${proSelection.volumeM3.toFixed(3)}m³ x R$ ${pricingParams.pricePerM3.toFixed(
+                        2
+                      )}`}
+                    >
+                      {proSelection.volumeM3.toFixed(3)} M³
+                    </span>
                   </div>
                   {selectedRoute === ALL_VALUE && (
                     <div className="text-[10px] mt-2 font-bold text-white/40 uppercase">
@@ -1251,6 +1296,24 @@ const App: React.FC = () => {
                       onChange={(event) =>
                         updatePricingParam(
                           "pricePerKg",
+                          Number(event.target.value)
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-500 uppercase">
+                      Preço por M3 (R$)
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={pricingParams.pricePerM3}
+                      onChange={(event) =>
+                        updatePricingParam(
+                          "pricePerM3",
                           Number(event.target.value)
                         )
                       }
@@ -1465,6 +1528,13 @@ const App: React.FC = () => {
                     <thead>
                       <tr className="bg-slate-900 text-white">
                         <th
+                          className="p-2 text-[10px] font-black uppercase tracking-widest text-center"
+                        >
+                          <div className="flex items-center justify-center">
+                            Veículo
+                          </div>
+                        </th>
+                        <th
                           className="p-1 text-[10px] font-black uppercase tracking-widest cursor-pointer group hover:bg-slate-800 transition-colors"
                           onClick={() => handleSortPro("nome")}
                         >
@@ -1495,17 +1565,12 @@ const App: React.FC = () => {
                         </th>
                         <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right">
                           <div className="flex items-center justify-end">
-                            Volume (CM3)
+                            Volume (M3)
                           </div>
                         </th>
                         <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right cursor-pointer group hover:bg-slate-800 transition-colors">
                           <div className="flex items-center justify-end">
                             Multi-Pacotes (R$)
-                          </div>
-                        </th>
-                        <th className="p-2 text-[10px] font-black uppercase tracking-widest text-center cursor-pointer group hover:bg-slate-800 transition-colors">
-                          <div className="flex items-center justify-center">
-                            Veículo
                           </div>
                         </th>
                         <th
@@ -1557,6 +1622,26 @@ const App: React.FC = () => {
                           }`}
                           onClick={() => setSelectedRoute(route.nome)}
                         >
+                          <td className="p-1 text-center">
+                            <select
+                              value={route.vehicle}
+                              onChange={(event) => {
+                                const nextVehicle = event.target
+                                  .value as VehicleType;
+                                setRouteVehicles((prev) => ({
+                                  ...prev,
+                                  [route.nome]: nextVehicle,
+                                }));
+                              }}
+                              onClick={(event) => event.stopPropagation()}
+                              className="bg-white text-[10px] font-black text-slate-700 uppercase border border-slate-200 rounded-lg px-2 py-1 hover:border-emerald-400 focus:border-emerald-500 outline-none"
+                            >
+                              <option value="moto">Moto</option>
+                              <option value="carro">Carro</option>
+                              <option value="van">Van</option>
+                              <option value="caminhao">Caminhão</option>
+                            </select>
+                          </td>
                           <td className="p-1">
                             <span
                               className={`text-xs font-black uppercase transition-colors ${
@@ -1586,7 +1671,7 @@ const App: React.FC = () => {
                           </td>
                           <td className="p-1 text-right">
                             <span className="text-xs font-mono font-black text-slate-600">
-                              {route.volumeCm3.toFixed(0)}
+                              {route.volumeM3.toFixed(3)}
                             </span>
                           </td>
                           <td className="p-1 text-right">
@@ -1603,26 +1688,6 @@ const App: React.FC = () => {
                                 (pricingParams.packagePrice300g / 2)
                               ).toFixed(2)}
                             </span>
-                          </td>
-                          <td className="p-1 text-center">
-                            <select
-                              value={route.vehicle}
-                              onChange={(event) => {
-                                const nextVehicle = event.target
-                                  .value as VehicleType;
-                                setRouteVehicles((prev) => ({
-                                  ...prev,
-                                  [route.nome]: nextVehicle,
-                                }));
-                              }}
-                              onClick={(event) => event.stopPropagation()}
-                              className="bg-white text-[10px] font-black text-slate-700 uppercase border border-slate-200 rounded-lg px-2 py-1 hover:border-emerald-400 focus:border-emerald-500 outline-none"
-                            >
-                              <option value="moto">Moto</option>
-                              <option value="carro">Carro</option>
-                              <option value="van">Van</option>
-                              <option value="caminhao">Caminhão</option>
-                            </select>
                           </td>
                           <td className="p-1 text-right">
                             <span

@@ -20,12 +20,14 @@ export const calculatePriceEnterprise = (
   p: PricingParams,
   totalPackages: number = 1,
   uniqueStops: number = 1,
-  totalWeightKg: number = 0
+  totalWeightKg: number = 0,
+  totalVolumeM3: number = 0
 ): PricingResult => {
   // 1. Cálculo Base (D x C_km)
   const c_km = TABLES.C_KM[p.vehicle];
   const baseDistance = distKm * c_km;
   const baseWeight = totalWeightKg * p.pricePerKg;
+  const baseVolume = totalVolumeM3 * p.pricePerM3;
 
   // 2. Multiplicadores
   const V = TABLES.V_FACTOR[p.vehicle];
@@ -52,7 +54,9 @@ export const calculatePriceEnterprise = (
 
   // Preço Final = ((D x C_km) x Multiplicadores) + Taxa Fixa + Adicional Multi-pacotes
   const finalPriceRaw =
-    (baseDistance + baseWeight) * multipliersProduct + F + multiPackageAddition;
+    (baseDistance + baseWeight + baseVolume) * multipliersProduct +
+    F +
+    multiPackageAddition;
   const finalPrice = Math.round((finalPriceRaw + Number.EPSILON) * 100) / 100;
 
   return {
@@ -63,16 +67,6 @@ export const calculatePriceEnterprise = (
     multipliers: { V, T, C, S, SLA, R },
     multipliersProduct: Math.round(multipliersProduct * 10000) / 10000,
     breakdownSteps: [
-      {
-        step: "Base (Distância)",
-        value: baseDistance,
-        note: `${distKm.toFixed(2)}km x R$ ${c_km.toFixed(2)}`,
-      },
-      {
-        step: "Base (Peso)",
-        value: baseWeight,
-        note: `${totalWeightKg.toFixed(2)}kg x R$ ${p.pricePerKg.toFixed(2)}`,
-      },
       {
         step: "Multiplicadores Logísticos",
         value: multipliersProduct,
