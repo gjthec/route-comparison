@@ -60,18 +60,16 @@ export type ClimateType =
   | "TEMPESTADE";
 export type SLAType = "NORMAL" | "SAME_DAY" | "EXPRESS" | "IMEDIATA";
 export type RiskType = "BAIXO" | "MEDIO" | "ALTO" | "MUITO_ALTO";
-export type WeightMode = "BRACKETS" | "CONTINUOUS";
-
 export interface PricingParams {
   vehicle: VehicleType;
-  weightKg: number;
   traffic: TrafficType;
   climate: ClimateType;
   sla: SLAType;
   risk: RiskType;
   pedidos: number;
   motoristas: number;
-  weightMode: WeightMode;
+  pricePerKg: number;
+  pricePerM3: number;
   packagePrice300g: number; // Novo campo para regra de 50%
 }
 
@@ -82,7 +80,6 @@ export interface PricingResult {
   multiPackageAddition: number; // Valor somado por pacotes extras
   multipliers: {
     V: number;
-    W: number;
     T: number;
     C: number;
     S: number;
