@@ -1650,34 +1650,40 @@ const App: React.FC = () => {
                           </td>
                           <td className="p-1 text-center">
                             <span
-                              className={`inline-flex items-center justify-center text-[10px] font-black px-2 py-1 rounded-lg border transition-colors relative group ${
+                              className={`inline-flex items-center justify-center text-[10px] font-black px-2 py-1 rounded-lg border transition-colors relative ${
                                 proSortKey === "paradas"
                                   ? "bg-indigo-600 text-white border-indigo-600"
                                   : "bg-emerald-50 text-emerald-700 border-emerald-100"
                               }`}
                             >
-                              {formatCurrency(route.faturamento.base)}
-                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+                              <span className="peer cursor-help">
+                                {formatCurrency(route.faturamento.base)}
+                              </span>
+                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
                                 {route.distancia.toFixed(2)} km
                               </span>
                             </span>
                           </td>
                           <td className="p-1 text-right">
-                            <span className="text-xs font-mono font-black text-slate-600 relative group inline-flex">
-                              {formatCurrency(
-                                route.pesoKg * pricingParams.pricePerKg
-                              )}
-                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+                            <span className="text-xs font-mono font-black text-slate-600 relative inline-flex">
+                              <span className="peer cursor-help">
+                                {formatCurrency(
+                                  route.pesoKg * pricingParams.pricePerKg
+                                )}
+                              </span>
+                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
                                 {route.pesoKg.toFixed(2)} kg
                               </span>
                             </span>
                           </td>
                           <td className="p-1 text-right">
-                            <span className="text-xs font-mono font-black text-slate-600 relative group inline-flex">
-                              {formatCurrency(
-                                route.volumeM3 * pricingParams.pricePerM3
-                              )}
-                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
+                            <span className="text-xs font-mono font-black text-slate-600 relative inline-flex">
+                              <span className="peer cursor-help">
+                                {formatCurrency(
+                                  route.volumeM3 * pricingParams.pricePerM3
+                                )}
+                              </span>
+                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
                                 {route.volumeM3.toFixed(3)} m³
                               </span>
                             </span>
