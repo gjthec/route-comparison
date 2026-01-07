@@ -1655,6 +1655,13 @@ const App: React.FC = () => {
                           </td>
                           <td className="p-1 text-center">
                             <span
+                              title={`${route.distancia.toFixed(2)}km x R$ ${
+                                route.distancia > 0
+                                  ? (
+                                      route.faturamento.base / route.distancia
+                                    ).toFixed(2)
+                                  : "0.00"
+                              }`}
                               className={`inline-flex items-center justify-center text-[10px] font-black px-2 py-1 rounded-lg border transition-colors ${
                                 proSortKey === "paradas"
                                   ? "bg-indigo-600 text-white border-indigo-600"
@@ -1665,12 +1672,22 @@ const App: React.FC = () => {
                             </span>
                           </td>
                           <td className="p-1 text-right">
-                            <span className="text-xs font-mono font-black text-slate-600">
+                            <span
+                              title={`${route.pesoKg.toFixed(
+                                2
+                              )}kg x R$ ${pricingParams.pricePerKg.toFixed(2)}`}
+                              className="text-xs font-mono font-black text-slate-600"
+                            >
                               {route.pesoKg.toFixed(2)}
                             </span>
                           </td>
                           <td className="p-1 text-right">
-                            <span className="text-xs font-mono font-black text-slate-600">
+                            <span
+                              title={`${route.volumeM3.toFixed(
+                                3
+                              )}m³ x R$ ${pricingParams.pricePerM3.toFixed(2)}`}
+                              className="text-xs font-mono font-black text-slate-600"
+                            >
                               {route.volumeM3.toFixed(3)}
                             </span>
                           </td>
