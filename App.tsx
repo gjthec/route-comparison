@@ -871,28 +871,28 @@ const App: React.FC = () => {
                 </p>
               </div>
               {activeDriverStats && (
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  <div className="bg-white/10 rounded-2xl p-1.5 text-center">
-                    <span className="text-[12px] md:text-[11px] font-black uppercase text-emerald-200">
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  <div className="bg-white/10 rounded-xl p-1 text-center">
+                    <span className="text-[11px] md:text-[10px] font-black uppercase text-emerald-200 leading-none">
                       Pacotes
                     </span>
-                    <div className="text-2xl md:text-2xl font-black">
+                    <div className="text-xl md:text-2xl font-black leading-none">
                       {activeDriverStats.totalPackages}
                     </div>
                   </div>
-                  <div className="bg-white/10 rounded-2xl p-1.5 text-center">
-                    <span className="text-[12px] md:text-[11px] font-black uppercase text-sky-200">
+                  <div className="bg-white/10 rounded-xl p-1 text-center">
+                    <span className="text-[11px] md:text-[10px] font-black uppercase text-sky-200 leading-none">
                       Paradas
                     </span>
-                    <div className="text-2xl md:text-2xl font-black">
+                    <div className="text-xl md:text-2xl font-black leading-none">
                       {activeDriverStats.uniqueStops}
                     </div>
                   </div>
-                  <div className="bg-white/10 rounded-2xl p-1.5 text-center">
-                    <span className="text-[12px] md:text-[11px] font-black uppercase text-violet-200">
+                  <div className="bg-white/10 rounded-xl p-1 text-center">
+                    <span className="text-[11px] md:text-[10px] font-black uppercase text-violet-200 leading-none">
                       Diária
                     </span>
-                    <div className="text-xl md:text-xl font-black">
+                    <div className="text-lg md:text-xl font-black leading-none">
                       R$ {activeDriverData.ValorDiariaFixa.toFixed(2)}
                     </div>
                   </div>
@@ -1144,20 +1144,20 @@ const App: React.FC = () => {
                       : operationPricingTotal?.valorTotal || 0
                     ).toFixed(2)}
                   </div>
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    <div className="bg-white/10 rounded-2xl p-1.5 text-center">
-                      <span className="text-[12px] md:text-[11px] font-black uppercase text-emerald-100">
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <div className="bg-white/10 rounded-xl p-1 text-center">
+                      <span className="text-[11px] md:text-[10px] font-black uppercase text-emerald-100 leading-none">
                         Pacotes
                       </span>
-                      <div className="text-2xl md:text-2xl font-black">
+                      <div className="text-xl md:text-2xl font-black leading-none">
                         {proSelection.pacotes}
                       </div>
                     </div>
-                    <div className="bg-white/10 rounded-2xl p-1.5 text-center">
-                      <span className="text-[12px] md:text-[11px] font-black uppercase text-sky-100">
+                    <div className="bg-white/10 rounded-xl p-1 text-center">
+                      <span className="text-[11px] md:text-[10px] font-black uppercase text-sky-100 leading-none">
                         Paradas
                       </span>
-                      <div className="text-2xl md:text-2xl font-black">
+                      <div className="text-xl md:text-2xl font-black leading-none">
                         {proSelection.paradas}
                       </div>
                     </div>
