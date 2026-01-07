@@ -19,26 +19,18 @@ export const calculatePriceEnterprise = (
   distKm: number,
   p: PricingParams,
   totalPackages: number = 1,
-  uniqueStops: number = 1
+  uniqueStops: number = 1,
+  totalWeightKg: number = 0,
+  totalVolumeM3: number = 0
 ): PricingResult => {
   // 1. Cálculo Base (D x C_km)
   const c_km = TABLES.C_KM[p.vehicle];
-  const base = distKm * c_km;
+  const baseDistance = distKm * c_km;
+  const baseWeight = totalWeightKg * p.pricePerKg;
+  const baseVolume = totalVolumeM3 * p.pricePerM3;
 
   // 2. Multiplicadores
   const V = TABLES.V_FACTOR[p.vehicle];
-
-  let W = 1.0;
-  if (p.weightMode === "CONTINUOUS") {
-    W = 1 + p.weightKg / 100;
-  } else {
-    if (p.weightKg <= 3) W = 1.0;
-    else if (p.weightKg <= 10) W = 1.1;
-    else if (p.weightKg <= 30) W = 1.25;
-    else if (p.weightKg <= 100) W = 1.5;
-    else W = 1.8;
-  }
-
   const T = TABLES.TRAFFIC[p.traffic];
   const C = TABLES.CLIMATE[p.climate];
   const SLA = TABLES.SLA[p.sla];
@@ -52,7 +44,7 @@ export const calculatePriceEnterprise = (
   }
   S = Math.min(Math.max(S, 1.0), 2.5);
 
-  const multipliersProduct = V * W * T * C * S * SLA * R;
+  const multipliersProduct = V * T * C * S * SLA * R;
   const F = TABLES.FIXED_FEE[p.vehicle];
 
   // 3. Regra de Multi-pacotes (50% do valor base de 300g por pacote extra)
@@ -61,26 +53,24 @@ export const calculatePriceEnterprise = (
   const multiPackageAddition = extraPackagesCount * (p.packagePrice300g * 0.5);
 
   // Preço Final = ((D x C_km) x Multiplicadores) + Taxa Fixa + Adicional Multi-pacotes
-  const finalPriceRaw = base * multipliersProduct + F + multiPackageAddition;
+  const finalPriceRaw =
+    (baseDistance + baseWeight + baseVolume) * multipliersProduct +
+    F +
+    multiPackageAddition;
   const finalPrice = Math.round((finalPriceRaw + Number.EPSILON) * 100) / 100;
 
   return {
     finalPrice,
-    base: Math.round(base * 100) / 100,
+    base: Math.round(baseDistance * 100) / 100,
     fixedFee: F,
     multiPackageAddition,
-    multipliers: { V, W, T, C, S, SLA, R },
+    multipliers: { V, T, C, S, SLA, R },
     multipliersProduct: Math.round(multipliersProduct * 10000) / 10000,
     breakdownSteps: [
       {
-        step: "Base (Distância)",
-        value: base,
-        note: `${distKm.toFixed(2)}km x R$ ${c_km.toFixed(2)}`,
-      },
-      {
         step: "Multiplicadores Logísticos",
         value: multipliersProduct,
-        note: "V x W x T x C x S x SLA x R",
+        note: "V x T x C x S x SLA x R",
       },
       { step: "Taxa Fixa (F)", value: F },
       {
