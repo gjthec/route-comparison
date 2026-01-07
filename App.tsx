@@ -1218,21 +1218,27 @@ const App: React.FC = () => {
                           : "0.00"
                       }`}
                     >
-                      {proSelection.distKm.toFixed(2)} KM
+                      R$ {proSelection.pricing.base.toFixed(2)}
                     </span>
                     <span
                       title={`${proSelection.pesoKg.toFixed(2)}kg x R$ ${pricingParams.pricePerKg.toFixed(
                         2
                       )}`}
                     >
-                      {proSelection.pesoKg.toFixed(2)} KG
+                      R${" "}
+                      {(proSelection.pesoKg * pricingParams.pricePerKg).toFixed(
+                        2
+                      )}
                     </span>
                     <span
                       title={`${proSelection.volumeM3.toFixed(3)}m³ x R$ ${pricingParams.pricePerM3.toFixed(
                         2
                       )}`}
                     >
-                      {proSelection.volumeM3.toFixed(3)} M³
+                      R${" "}
+                      {(
+                        proSelection.volumeM3 * pricingParams.pricePerM3
+                      ).toFixed(2)}
                     </span>
                   </div>
                   {selectedRoute === ALL_VALUE && (
@@ -1668,7 +1674,7 @@ const App: React.FC = () => {
                                   : "bg-emerald-50 text-emerald-700 border-emerald-100"
                               }`}
                             >
-                              {route.distancia.toFixed(2)} km
+                              R$ {route.faturamento.base.toFixed(2)}
                             </span>
                           </td>
                           <td className="p-1 text-right">
@@ -1678,7 +1684,7 @@ const App: React.FC = () => {
                               )}kg x R$ ${pricingParams.pricePerKg.toFixed(2)}`}
                               className="text-xs font-mono font-black text-slate-600"
                             >
-                              {route.pesoKg.toFixed(2)}
+                              R$ {(route.pesoKg * pricingParams.pricePerKg).toFixed(2)}
                             </span>
                           </td>
                           <td className="p-1 text-right">
@@ -1688,7 +1694,7 @@ const App: React.FC = () => {
                               )}m³ x R$ ${pricingParams.pricePerM3.toFixed(2)}`}
                               className="text-xs font-mono font-black text-slate-600"
                             >
-                              {route.volumeM3.toFixed(3)}
+                              R$ {(route.volumeM3 * pricingParams.pricePerM3).toFixed(2)}
                             </span>
                           </td>
                           <td className="p-1 text-right">
