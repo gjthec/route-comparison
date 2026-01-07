@@ -855,44 +855,44 @@ const App: React.FC = () => {
         </div>
         {activeDriverData ? (
           <div className="space-y-6">
-            <div className="bg-slate-900 p-4 rounded-[1rem] text-white shadow-xl border border-white/10">
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">
+            <div className="bg-slate-900 p-4 md:p-5 rounded-[1rem] text-white shadow-xl border border-white/10">
+              <p className="text-[11px] md:text-xs font-black uppercase text-slate-400 tracking-widest mb-3">
                 Faturamento Selecionado Real
               </p>
-              <div className="text-5xl font-black tracking-tighter text-white">
+              <div className="text-4xl md:text-5xl font-black tracking-tighter text-white">
                 R$ {activeDriverData.ValorTotal.toFixed(2)}
               </div>
               <div className="mt-3 flex flex-col gap-1">
-                <p className="text-xs font-bold text-white uppercase">
+                <p className="text-sm md:text-xs font-bold text-white uppercase">
                   {activeDriverData.mot_nome}
                 </p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase">
+                <p className="text-[11px] md:text-[10px] font-bold text-slate-300 uppercase">
                   CAFs vinculados: {activeDriverData.CafID}
                 </p>
               </div>
               {activeDriverStats && (
-                <div className="mt-4 grid grid-cols-3 gap-2">
+                <div className="mt-3 grid grid-cols-3 gap-2">
                   <div className="bg-white/10 rounded-2xl p-2 text-center">
-                    <span className="text-[11px] font-black uppercase text-emerald-200">
+                    <span className="text-[12px] md:text-[11px] font-black uppercase text-emerald-200">
                       Pacotes
                     </span>
-                    <div className="text-2xl font-black">
+                    <div className="text-2xl md:text-2xl font-black">
                       {activeDriverStats.totalPackages}
                     </div>
                   </div>
                   <div className="bg-white/10 rounded-2xl p-2 text-center">
-                    <span className="text-[11px] font-black uppercase text-sky-200">
+                    <span className="text-[12px] md:text-[11px] font-black uppercase text-sky-200">
                       Paradas
                     </span>
-                    <div className="text-2xl font-black">
+                    <div className="text-2xl md:text-2xl font-black">
                       {activeDriverStats.uniqueStops}
                     </div>
                   </div>
                   <div className="bg-white/10 rounded-2xl p-2 text-center">
-                    <span className="text-[11px] font-black uppercase text-violet-200">
+                    <span className="text-[12px] md:text-[11px] font-black uppercase text-violet-200">
                       Diária
                     </span>
-                    <div className="text-xl font-black">
+                    <div className="text-xl md:text-xl font-black">
                       R$ {activeDriverData.ValorDiariaFixa.toFixed(2)}
                     </div>
                   </div>
@@ -900,8 +900,8 @@ const App: React.FC = () => {
               )}
             </div>
 
-            <div className="bg-slate-50 p-4 rounded-[1.8rem] border border-slate-100 space-y-2">
-              <p className="text-[11px] font-black text-slate-500 uppercase tracking-wide px-1">
+            <div className="bg-slate-50 p-4 rounded-[1.6rem] border border-slate-100 space-y-2">
+              <p className="text-[12px] md:text-[11px] font-black text-slate-600 uppercase tracking-wide px-1">
                 Categorias Consolidadas (Seleção)
               </p>
               {[
@@ -930,10 +930,10 @@ const App: React.FC = () => {
                   key={i}
                   className="bg-white px-3 py-2 rounded-xl flex justify-between items-center shadow-sm border border-slate-100"
                 >
-                  <span className="text-sm font-black text-slate-700 uppercase">
+                  <span className="text-base md:text-sm font-black text-slate-700 uppercase">
                     {item.label}
                   </span>
-                  <span className="text-base font-mono font-black text-slate-900">
+                  <span className="text-lg md:text-base font-mono font-black text-slate-900">
                     R$ {item.val?.toFixed(2) || "0.00"}
                   </span>
                 </div>
@@ -1122,14 +1122,14 @@ const App: React.FC = () => {
                     selectedRoute !== ALL_VALUE
                       ? "bg-slate-900"
                       : "bg-indigo-600"
-                  } p-6 rounded-[1rem] text-white shadow-xl border border-white/10 relative overflow-hidden group transition-all ${
+                  } p-4 md:p-6 rounded-[1rem] text-white shadow-xl border border-white/10 relative overflow-hidden group transition-all ${
                     isRouteHighlightActive && selectedRoute !== ALL_VALUE
                       ? "ring-4 ring-emerald-400/60 animate-pulse"
                       : ""
                   }`}
                 >
                   <p
-                    className={`text-xs font-black uppercase tracking-[0.3em] mb-4 ${
+                    className={`text-[11px] md:text-xs font-black uppercase tracking-[0.3em] mb-3 ${
                       selectedRoute !== ALL_VALUE
                         ? "text-indigo-400"
                         : "text-white/60"
@@ -1137,30 +1137,30 @@ const App: React.FC = () => {
                   >
                     {proSelection.label}
                   </p>
-                  <div className="text-5xl font-black tracking-tighter text-white">
+                  <div className="text-4xl md:text-5xl font-black tracking-tighter text-white">
                     R${" "}
                     {(selectedRoute !== ALL_VALUE
                       ? proSelection.pricing.finalPrice
                       : operationPricingTotal?.valorTotal || 0
                     ).toFixed(2)}
                   </div>
-                  <div className="text-[14px] mt-4 font-bold text-slate-200 uppercase flex gap-1">
+                  <div className="text-[13px] md:text-[14px] mt-3 font-bold text-slate-200 uppercase flex gap-1">
                     <span>{proSelection.distKm.toFixed(2)} KM</span>
                   </div>
-                  <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="mt-3 grid grid-cols-2 gap-2">
                     <div className="bg-white/10 rounded-2xl p-2 text-center">
-                      <span className="text-[11px] font-black uppercase text-emerald-100">
+                      <span className="text-[12px] md:text-[11px] font-black uppercase text-emerald-100">
                         Pacotes
                       </span>
-                      <div className="text-2xl font-black">
+                      <div className="text-2xl md:text-2xl font-black">
                         {proSelection.pacotes}
                       </div>
                     </div>
                     <div className="bg-white/10 rounded-2xl p-2 text-center">
-                      <span className="text-[11px] font-black uppercase text-sky-100">
+                      <span className="text-[12px] md:text-[11px] font-black uppercase text-sky-100">
                         Paradas
                       </span>
-                      <div className="text-2xl font-black">
+                      <div className="text-2xl md:text-2xl font-black">
                         {proSelection.paradas}
                       </div>
                     </div>
