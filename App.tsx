@@ -674,6 +674,15 @@ const App: React.FC = () => {
     );
   };
 
+  const formatCurrency = useCallback(
+    (value: number) =>
+      new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(value),
+    []
+  );
+
   const proSelection = useMemo(() => {
     if (!data.length) return null;
     if (selectedRoute !== ALL_VALUE) {
@@ -1209,37 +1218,25 @@ const App: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-[12px] md:text-[13px] mt-2 font-bold text-slate-200 uppercase flex flex-wrap gap-3">
-                    <span
-                      title={`${proSelection.distKm.toFixed(2)}km x R$ ${
-                        proSelection.distKm > 0
-                          ? (
-                              proSelection.pricing.base / proSelection.distKm
-                            ).toFixed(2)
-                          : "0.00"
-                      }`}
-                    >
-                      R$ {proSelection.pricing.base.toFixed(2)}
-                    </span>
-                    <span
-                      title={`${proSelection.pesoKg.toFixed(2)}kg x R$ ${pricingParams.pricePerKg.toFixed(
-                        2
-                      )}`}
-                    >
-                      R${" "}
-                      {(proSelection.pesoKg * pricingParams.pricePerKg).toFixed(
-                        2
-                      )}
-                    </span>
-                    <span
-                      title={`${proSelection.volumeM3.toFixed(3)}m³ x R$ ${pricingParams.pricePerM3.toFixed(
-                        2
-                      )}`}
-                    >
-                      R${" "}
-                      {(
+                    {[
+                      formatCurrency(proSelection.pricing.base),
+                      formatCurrency(
+                        proSelection.pesoKg * pricingParams.pricePerKg
+                      ),
+                      formatCurrency(
                         proSelection.volumeM3 * pricingParams.pricePerM3
-                      ).toFixed(2)}
-                    </span>
+                      ),
+                    ].map((value, index) => (
+                      <span
+                        key={index}
+                        className="relative group inline-flex"
+                      >
+                        {value}
+                        <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                          {value}
+                        </span>
+                      </span>
+                    ))}
                   </div>
                   {selectedRoute === ALL_VALUE && (
                     <div className="text-[10px] mt-2 font-bold text-white/40 uppercase">
@@ -1661,40 +1658,40 @@ const App: React.FC = () => {
                           </td>
                           <td className="p-1 text-center">
                             <span
-                              title={`${route.distancia.toFixed(2)}km x R$ ${
-                                route.distancia > 0
-                                  ? (
-                                      route.faturamento.base / route.distancia
-                                    ).toFixed(2)
-                                  : "0.00"
-                              }`}
-                              className={`inline-flex items-center justify-center text-[10px] font-black px-2 py-1 rounded-lg border transition-colors ${
+                              className={`inline-flex items-center justify-center text-[10px] font-black px-2 py-1 rounded-lg border transition-colors relative group ${
                                 proSortKey === "paradas"
                                   ? "bg-indigo-600 text-white border-indigo-600"
                                   : "bg-emerald-50 text-emerald-700 border-emerald-100"
                               }`}
                             >
-                              R$ {route.faturamento.base.toFixed(2)}
+                              {formatCurrency(route.faturamento.base)}
+                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                                {formatCurrency(route.faturamento.base)}
+                              </span>
                             </span>
                           </td>
                           <td className="p-1 text-right">
-                            <span
-                              title={`${route.pesoKg.toFixed(
-                                2
-                              )}kg x R$ ${pricingParams.pricePerKg.toFixed(2)}`}
-                              className="text-xs font-mono font-black text-slate-600"
-                            >
-                              R$ {(route.pesoKg * pricingParams.pricePerKg).toFixed(2)}
+                            <span className="text-xs font-mono font-black text-slate-600 relative group inline-flex">
+                              {formatCurrency(
+                                route.pesoKg * pricingParams.pricePerKg
+                              )}
+                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                                {formatCurrency(
+                                  route.pesoKg * pricingParams.pricePerKg
+                                )}
+                              </span>
                             </span>
                           </td>
                           <td className="p-1 text-right">
-                            <span
-                              title={`${route.volumeM3.toFixed(
-                                3
-                              )}m³ x R$ ${pricingParams.pricePerM3.toFixed(2)}`}
-                              className="text-xs font-mono font-black text-slate-600"
-                            >
-                              R$ {(route.volumeM3 * pricingParams.pricePerM3).toFixed(2)}
+                            <span className="text-xs font-mono font-black text-slate-600 relative group inline-flex">
+                              {formatCurrency(
+                                route.volumeM3 * pricingParams.pricePerM3
+                              )}
+                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                                {formatCurrency(
+                                  route.volumeM3 * pricingParams.pricePerM3
+                                )}
+                              </span>
                             </span>
                           </td>
                           <td className="p-1 text-right">
@@ -1705,11 +1702,10 @@ const App: React.FC = () => {
                                   : "text-slate-600"
                               }`}
                             >
-                              R${" "}
-                              {(
+                              {formatCurrency(
                                 (route.pacotes - route.paradas) *
-                                (pricingParams.packagePrice300g / 2)
-                              ).toFixed(2)}
+                                  (pricingParams.packagePrice300g / 2)
+                              )}
                             </span>
                           </td>
                           <td className="p-1 text-right">
@@ -1720,7 +1716,7 @@ const App: React.FC = () => {
                                   : "text-slate-600"
                               }`}
                             >
-                              R$ {route.faturamento.finalPrice.toFixed(2)}
+                              {formatCurrency(route.faturamento.finalPrice)}
                             </span>
                           </td>
                           <td className="p-1 text-center">
