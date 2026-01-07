@@ -862,47 +862,46 @@ const App: React.FC = () => {
               <div className="text-5xl font-black tracking-tighter text-white">
                 R$ {activeDriverData.ValorTotal.toFixed(2)}
               </div>
-              <div className="mt-4 flex flex-col gap-1">
-                <p className="text-[10px] font-bold text-white uppercase">
+              <div className="mt-3 flex flex-col gap-1">
+                <p className="text-xs font-bold text-white uppercase">
                   {activeDriverData.mot_nome}
                 </p>
-                <p className="text-[9px] font-bold text-slate-500 uppercase">
+                <p className="text-[10px] font-bold text-slate-400 uppercase">
                   CAFs vinculados: {activeDriverData.CafID}
                 </p>
               </div>
+              {activeDriverStats && (
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="bg-white/10 rounded-2xl p-2 text-center">
+                    <span className="text-[11px] font-black uppercase text-emerald-200">
+                      Pacotes
+                    </span>
+                    <div className="text-2xl font-black">
+                      {activeDriverStats.totalPackages}
+                    </div>
+                  </div>
+                  <div className="bg-white/10 rounded-2xl p-2 text-center">
+                    <span className="text-[11px] font-black uppercase text-sky-200">
+                      Paradas
+                    </span>
+                    <div className="text-2xl font-black">
+                      {activeDriverStats.uniqueStops}
+                    </div>
+                  </div>
+                  <div className="bg-white/10 rounded-2xl p-2 text-center">
+                    <span className="text-[11px] font-black uppercase text-violet-200">
+                      Diária
+                    </span>
+                    <div className="text-xl font-black">
+                      R$ {activeDriverData.ValorDiariaFixa.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {activeDriverStats && (
-              <div className="grid grid-cols-3 gap-1">
-                <div className="bg-emerald-50 p-2 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center">
-                  <span className="text-[10px] font-black uppercase text-emerald-400 mb-1">
-                    Pacotes
-                  </span>
-                  <div className="text-3xl font-black">
-                    {activeDriverStats.totalPackages}
-                  </div>
-                </div>
-                <div className="bg-blue-50 p-2 rounded-3xl border border-blue-100 flex flex-col items-center justify-center">
-                  <span className="text-[10px] font-black uppercase text-blue-400 mb-1">
-                    Paradas
-                  </span>
-                  <div className="text-3xl font-black">
-                    {activeDriverStats.uniqueStops}
-                  </div>
-                </div>
-                <div className="bg-indigo-50 p-2 rounded-3xl border border-indigo-100 flex flex-col items-center justify-center">
-                  <span className="text-[10px] font-black uppercase text-indigo-400 mb-1">
-                    Diária Fixa
-                  </span>
-                  <div className="text-2xl font-black">
-                    R$ {activeDriverData.ValorDiariaFixa.toFixed(2)}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 space-y-3">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">
+            <div className="bg-slate-50 p-4 rounded-[1.8rem] border border-slate-100 space-y-2">
+              <p className="text-[11px] font-black text-slate-500 uppercase tracking-wide px-1">
                 Categorias Consolidadas (Seleção)
               </p>
               {[
@@ -929,12 +928,12 @@ const App: React.FC = () => {
               ].map((item, i) => (
                 <div
                   key={i}
-                  className="bg-white p-1 rounded-xl flex justify-between items-center shadow-sm border border-slate-100"
+                  className="bg-white px-3 py-2 rounded-xl flex justify-between items-center shadow-sm border border-slate-100"
                 >
-                  <span className="text-xs font-black text-slate-600 uppercase">
+                  <span className="text-sm font-black text-slate-700 uppercase">
                     {item.label}
                   </span>
-                  <span className="text-md font-mono font-black text-slate-900">
+                  <span className="text-base font-mono font-black text-slate-900">
                     R$ {item.val?.toFixed(2) || "0.00"}
                   </span>
                 </div>
