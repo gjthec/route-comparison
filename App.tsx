@@ -1218,33 +1218,17 @@ const App: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-[12px] md:text-[13px] mt-2 font-bold text-slate-200 uppercase flex flex-wrap gap-3">
-                    {[
-                      {
-                        display: formatCurrency(proSelection.pricing.base),
-                        hover: `${proSelection.distKm.toFixed(2)} km`,
-                      },
-                      {
-                        display: formatCurrency(
-                          proSelection.pesoKg * pricingParams.pricePerKg
-                        ),
-                        hover: `${proSelection.pesoKg.toFixed(2)} kg`,
-                      },
-                      {
-                        display: formatCurrency(
-                          proSelection.volumeM3 * pricingParams.pricePerM3
-                        ),
-                        hover: `${proSelection.volumeM3.toFixed(3)} m³`,
-                      },
-                    ].map((item, index) => (
-                      <span key={index} className="relative group inline-flex">
-                        {item.display}
-                        {selectedRoute !== ALL_VALUE && (
-                          <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
-                            {item.hover}
-                          </span>
-                        )}
-                      </span>
-                    ))}
+                    <span>{formatCurrency(proSelection.pricing.base)}</span>
+                    <span>
+                      {formatCurrency(
+                        proSelection.pesoKg * pricingParams.pricePerKg
+                      )}
+                    </span>
+                    <span>
+                      {formatCurrency(
+                        proSelection.volumeM3 * pricingParams.pricePerM3
+                      )}
+                    </span>
                   </div>
                   {selectedRoute === ALL_VALUE && (
                     <div className="text-[10px] mt-2 font-bold text-white/40 uppercase">
