@@ -871,8 +871,8 @@ const App: React.FC = () => {
                 </p>
               </div>
               {activeDriverStats && (
-                <div className="mt-2 grid grid-cols-3 gap-2">
-                  <div className="bg-white/10 rounded-xl p-1 text-center">
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
                     <span className="text-[11px] md:text-[10px] font-black uppercase text-emerald-200 leading-none">
                       Pacotes
                     </span>
@@ -880,7 +880,7 @@ const App: React.FC = () => {
                       {activeDriverStats.totalPackages}
                     </div>
                   </div>
-                  <div className="bg-white/10 rounded-xl p-1 text-center">
+                  <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
                     <span className="text-[11px] md:text-[10px] font-black uppercase text-sky-200 leading-none">
                       Paradas
                     </span>
@@ -888,7 +888,7 @@ const App: React.FC = () => {
                       {activeDriverStats.uniqueStops}
                     </div>
                   </div>
-                  <div className="bg-white/10 rounded-xl p-1 text-center">
+                  <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
                     <span className="text-[11px] md:text-[10px] font-black uppercase text-violet-200 leading-none">
                       Diária
                     </span>
@@ -1144,8 +1144,8 @@ const App: React.FC = () => {
                       : operationPricingTotal?.valorTotal || 0
                     ).toFixed(2)}
                   </div>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <div className="bg-white/10 rounded-xl p-1 text-center">
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
                       <span className="text-[11px] md:text-[10px] font-black uppercase text-emerald-100 leading-none">
                         Pacotes
                       </span>
@@ -1153,7 +1153,7 @@ const App: React.FC = () => {
                         {proSelection.pacotes}
                       </div>
                     </div>
-                    <div className="bg-white/10 rounded-xl p-1 text-center">
+                    <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
                       <span className="text-[11px] md:text-[10px] font-black uppercase text-sky-100 leading-none">
                         Paradas
                       </span>
