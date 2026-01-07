@@ -1144,9 +1144,6 @@ const App: React.FC = () => {
                       : operationPricingTotal?.valorTotal || 0
                     ).toFixed(2)}
                   </div>
-                  <div className="text-[13px] md:text-[14px] mt-3 font-bold text-slate-200 uppercase flex gap-1">
-                    <span>{proSelection.distKm.toFixed(2)} KM</span>
-                  </div>
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <div className="bg-white/10 rounded-2xl p-2 text-center">
                       <span className="text-[12px] md:text-[11px] font-black uppercase text-emerald-100">
@@ -1164,6 +1161,9 @@ const App: React.FC = () => {
                         {proSelection.paradas}
                       </div>
                     </div>
+                  </div>
+                  <div className="text-[13px] md:text-[14px] mt-3 font-bold text-slate-200 uppercase flex gap-1">
+                    <span>{proSelection.distKm.toFixed(2)} KM</span>
                   </div>
                   {selectedRoute === ALL_VALUE && (
                     <div className="text-[10px] mt-2 font-bold text-white/40 uppercase">
