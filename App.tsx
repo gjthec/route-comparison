@@ -60,6 +60,7 @@ const App: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isValoresPanelOpen, setIsValoresPanelOpen] = useState(false);
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
+  const [isRouteHighlightActive, setIsRouteHighlightActive] = useState(false);
 
   // Estados de ordenação - Tabela Real
   const [sortKey, setSortKey] = useState<SortKey>("faturamento");
@@ -99,6 +100,7 @@ const App: React.FC = () => {
   const mapRRef = useRef<any>(null);
   const sideLGroupRef = useRef<any>(L.layerGroup());
   const sideRGroupRef = useRef<any>(L.layerGroup());
+  const proPanelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -272,12 +274,14 @@ const App: React.FC = () => {
           valorTotal: total?.valorTotal + pricing.finalPrice,
           paradasUnicas: total?.paradasUnicas + uniqueStops,
           totalEncomendas: total?.totalEncomendas + pts.length,
+          distanciaTotal: total?.distanciaTotal + distKm,
         };
       },
       {
         valorTotal: 0,
         paradasUnicas: 0,
         totalEncomendas: 0,
+        distanciaTotal: 0,
       }
     );
   }, [data, routeNames, pricingParams, routeVehicles]);
@@ -576,8 +580,18 @@ const App: React.FC = () => {
       mapRRef.current.fitBounds(
         L.latLngBounds(rightPts.map((p) => [p.lat, p.long])),
         { padding: [80, 80] }
-      );
+    );
   }, [selectedDriver, selectedRoute, updateSide]);
+
+  useEffect(() => {
+    if (selectedRoute === ALL_VALUE) return;
+    proPanelRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    setIsRouteHighlightActive(true);
+    const timer = window.setTimeout(() => {
+      setIsRouteHighlightActive(false);
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, [selectedRoute]);
 
   useEffect(() => {
     if (mapLRef.current) return;
@@ -626,6 +640,54 @@ const App: React.FC = () => {
       </svg>
     );
   };
+
+  const proSelection = useMemo(() => {
+    if (!data.length) return null;
+    if (selectedRoute !== ALL_VALUE) {
+      const pts = data.filter((p) => p.routeName === selectedRoute);
+      if (!pts.length) return null;
+      const uniqueStops = new Set(pts.map((p) => `${p.lat},${p.long}`)).size;
+      const distKm =
+        pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
+      const vehicle = routeVehicles[selectedRoute] ?? DEFAULT_ROUTE_VEHICLE;
+      const pricing = calculatePriceEnterprise(
+        distKm,
+        { ...pricingParams, vehicle },
+        pts.length,
+        uniqueStops
+      );
+      return {
+        label: `Projeção: ${selectedRoute}`,
+        distKm,
+        pacotes: pts.length,
+        paradas: uniqueStops,
+        pricing,
+      };
+    }
+
+    const distKm = operationPricingTotal?.distanciaTotal || 0;
+    const pacotes = operationPricingTotal?.totalEncomendas || 0;
+    const paradas = operationPricingTotal?.paradasUnicas || 0;
+    const pricing = calculatePriceEnterprise(
+      distKm,
+      { ...pricingParams, vehicle: DEFAULT_ROUTE_VEHICLE },
+      pacotes,
+      paradas
+    );
+    return {
+      label: "Total Projetado (Operação)",
+      distKm,
+      pacotes,
+      paradas,
+      pricing,
+    };
+  }, [
+    data,
+    selectedRoute,
+    routeVehicles,
+    pricingParams,
+    operationPricingTotal,
+  ]);
 
   return (
     <div className="w-full h-full relative flex flex-col bg-slate-50 overflow-hidden font-sans text-slate-900">
@@ -1039,6 +1101,7 @@ const App: React.FC = () => {
       </div>
 
       <div
+        ref={proPanelRef}
         className={`fixed top-0 right-0 h-full w-full md:w-1/2 bg-white z-[3000] shadow-[-20px_0_80px_rgba(0,0,0,0.1)] transition-all duration-500 ease-in-out p-3 md:p-3 overflow-y-auto ${
           isPanelOpen ? "translate-x-0" : "translate-x-full"
         }`}
@@ -1052,290 +1115,317 @@ const App: React.FC = () => {
         </div>
 
         <div className="space-y-6">
-          {selectedRoute !== ALL_VALUE ? (
-            (() => {
-              const pts = data.filter((p) => p.routeName === selectedRoute);
-              const uniqueStops = new Set(pts.map((p) => `${p.lat},${p.long}`))
-                .size;
-              const distKm =
-                pts[0].distancia_dentro_rota_km +
-                pts[0].distancia_primeiro_ponto_km;
-              const vehicle =
-                routeVehicles[selectedRoute] ?? DEFAULT_ROUTE_VEHICLE;
-              const pricing = calculatePriceEnterprise(
-                distKm,
-                { ...pricingParams, vehicle },
-                pts.length,
-                uniqueStops
-              );
-              return (
-                <div className="space-y-4 pb-4">
-                  <div className="bg-slate-900 p-6 rounded-[1rem] text-white shadow-xl border border-white/10 relative overflow-hidden group">
-                    <p className="text-xs font-black uppercase text-indigo-400 tracking-[0.3em] mb-4">
-                      Projeção: {selectedRoute}
-                    </p>
-                    <div className="text-5xl font-black tracking-tighter text-white">
-                      R$ {pricing.finalPrice.toFixed(2)}
+          {proSelection ? (
+            <>
+              <div className="space-y-4 pb-4">
+                <div
+                  className={`${
+                    selectedRoute !== ALL_VALUE
+                      ? "bg-slate-900"
+                      : "bg-indigo-600"
+                  } p-6 rounded-[1rem] text-white shadow-xl border border-white/10 relative overflow-hidden group transition-all ${
+                    isRouteHighlightActive && selectedRoute !== ALL_VALUE
+                      ? "ring-4 ring-emerald-400/60 animate-pulse"
+                      : ""
+                  }`}
+                >
+                  <p
+                    className={`text-xs font-black uppercase tracking-[0.3em] mb-4 ${
+                      selectedRoute !== ALL_VALUE
+                        ? "text-indigo-400"
+                        : "text-white/60"
+                    }`}
+                  >
+                    {proSelection.label}
+                  </p>
+                  <div className="text-5xl font-black tracking-tighter text-white">
+                    R${" "}
+                    {(selectedRoute !== ALL_VALUE
+                      ? proSelection.pricing.finalPrice
+                      : operationPricingTotal?.valorTotal || 0
+                    ).toFixed(2)}
+                  </div>
+                  <div className="text-[14px] mt-4 font-bold text-slate-200 uppercase flex gap-1">
+                    <span>{proSelection.distKm.toFixed(2)} KM</span>
+                  </div>
+                  {selectedRoute === ALL_VALUE && (
+                    <div className="text-[10px] mt-2 font-bold text-white/40 uppercase">
+                      Base: {routeNames.length} rotas otimizadas
                     </div>
-                    <div className="text-[14px] mt-4 font-bold text-slate-400 uppercase flex gap-1">
-                      <span>{distKm.toFixed(2)} KM</span>
-                      <span>{pts.length} Pacotes</span>
-                      <span>{uniqueStops} Pontos</span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-1">
+                  <div className="bg-emerald-50 p-2 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center">
+                    <span className="text-[10px] font-black uppercase text-emerald-400 mb-1">
+                      Pacotes
+                    </span>
+                    <div className="text-3xl font-black">
+                      {proSelection.pacotes}
                     </div>
                   </div>
-                  <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
-                    <div>
-                      <p className="text-[14px] font-black uppercase">
-                        Variáveis da Equação (Multiplicadores)
-                      </p>
-                      <p className="text-[12px] font-bold  mt-1">
-                        Custo/km (C_km), tipo do veículo (V) e taxa fixa (F)
-                        seguem o veículo selecionado para a rota.
-                      </p>
+                  <div className="bg-blue-50 p-2 rounded-3xl border border-blue-100 flex flex-col items-center justify-center">
+                    <span className="text-[10px] font-black uppercase text-blue-400 mb-1">
+                      Paradas
+                    </span>
+                    <div className="text-3xl font-black">
+                      {proSelection.paradas}
                     </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
-                        <span className="text-[12px] font-black uppercase text-slate-400">
-                          C_km
-                        </span>
-                        <div className="text-[14px] font-mono font-black text-slate-700">
-                          R${" "}
-                          {pricing.base > 0
-                            ? (pricing.base / distKm).toFixed(2)
-                            : "0.00"}
-                        </div>
-                      </div>
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
-                        <span className="text-[12px] font-black uppercase text-slate-400">
-                          V
-                        </span>
-                        <div className="text-[14px] font-mono font-black text-slate-700">
-                          x{pricing.multipliers.V.toFixed(2)}
-                        </div>
-                      </div>
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
-                        <span className="text-[12px] font-black uppercase text-slate-400">
-                          Taxa fixa (F)
-                        </span>
-                        <div className="text-[14px] font-mono font-black text-slate-700">
-                          R$ {pricing.fixedFee.toFixed(2)}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                      <label className="space-y-1">
-                        <span className="text-[10px] font-black text-slate-500 uppercase">
-                          Peso (kg) - W
-                        </span>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.1"
-                          value={pricingParams.weightKg}
-                          onChange={(event) =>
-                            updatePricingParam(
-                              "weightKg",
-                              Number(event.target.value)
-                            )
-                          }
-                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
-                        />
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-[10px] font-black text-slate-500 uppercase">
-                          Modo peso
-                        </span>
-                        <select
-                          value={pricingParams.weightMode}
-                          onChange={(event) =>
-                            updatePricingParam(
-                              "weightMode",
-                              event.target.value as PricingParams["weightMode"]
-                            )
-                          }
-                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                        >
-                          <option value="BRACKETS">Faixas</option>
-                          <option value="CONTINUOUS">Contínuo</option>
-                        </select>
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-[10px] font-black text-slate-500 uppercase">
-                          Trânsito - T
-                        </span>
-                        <select
-                          value={pricingParams.traffic}
-                          onChange={(event) =>
-                            updatePricingParam(
-                              "traffic",
-                              event.target.value as PricingParams["traffic"]
-                            )
-                          }
-                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                        >
-                          <option value="LIVRE">Livre</option>
-                          <option value="MODERADO">Moderado</option>
-                          <option value="INTENSO">Intenso</option>
-                          <option value="MUITO_INTENSO">Muito intenso</option>
-                        </select>
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-[10px] font-black text-slate-500 uppercase">
-                          Clima - C
-                        </span>
-                        <select
-                          value={pricingParams.climate}
-                          onChange={(event) =>
-                            updatePricingParam(
-                              "climate",
-                              event.target.value as PricingParams["climate"]
-                            )
-                          }
-                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                        >
-                          <option value="CEU_LIMPO">Céu limpo</option>
-                          <option value="CHUVA_FRACA">Chuva fraca</option>
-                          <option value="CHUVA_FORTE">Chuva forte</option>
-                          <option value="TEMPESTADE">Tempestade</option>
-                        </select>
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-[10px] font-black text-slate-500 uppercase">
-                          SLA
-                        </span>
-                        <select
-                          value={pricingParams.sla}
-                          onChange={(event) =>
-                            updatePricingParam(
-                              "sla",
-                              event.target.value as PricingParams["sla"]
-                            )
-                          }
-                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                        >
-                          <option value="NORMAL">Normal</option>
-                          <option value="SAME_DAY">Same day</option>
-                          <option value="EXPRESS">Express</option>
-                          <option value="IMEDIATA">Imediata</option>
-                        </select>
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-[10px] font-black text-slate-500 uppercase">
-                          Risco - R
-                        </span>
-                        <select
-                          value={pricingParams.risk}
-                          onChange={(event) =>
-                            updatePricingParam(
-                              "risk",
-                              event.target.value as PricingParams["risk"]
-                            )
-                          }
-                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                        >
-                          <option value="BAIXO">Baixo</option>
-                          <option value="MEDIO">Médio</option>
-                          <option value="ALTO">Alto</option>
-                          <option value="MUITO_ALTO">Muito alto</option>
-                        </select>
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-[10px] font-black text-slate-500 uppercase">
-                          Pedidos - S
-                        </span>
-                        <input
-                          type="number"
-                          min="0"
-                          step="1"
-                          value={pricingParams.pedidos}
-                          onChange={(event) =>
-                            updatePricingParam(
-                              "pedidos",
-                              Number(event.target.value)
-                            )
-                          }
-                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
-                        />
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-[10px] font-black text-slate-500 uppercase">
-                          Motoristas - S
-                        </span>
-                        <input
-                          type="number"
-                          min="0"
-                          step="1"
-                          value={pricingParams.motoristas}
-                          onChange={(event) =>
-                            updatePricingParam(
-                              "motoristas",
-                              Number(event.target.value)
-                            )
-                          }
-                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
-                        />
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-[10px] font-black text-slate-500 uppercase">
-                          Pacote 300g (R$)
-                        </span>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.1"
-                          value={pricingParams.packagePrice300g}
-                          onChange={(event) =>
-                            updatePricingParam(
-                              "packagePrice300g",
-                              Number(event.target.value)
-                            )
-                          }
-                          className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                  <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-2">
-                    <p className="text-[10px] font-black text-slate-400 tracking-widest mb-4 px-2">
-                      Memória de Cálculo (Pro)
-                    </p>
-                    {pricing.breakdownSteps.map((s, i) => (
-                      <div
-                        key={i}
-                        className="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-50 last:border-0"
-                      >
-                        <div className="flex flex-col">
-                          <span
-                            className={`text-[11px] font-black ${
-                              s.step.includes("Adicional")
-                                ? "text-indigo-600"
-                                : "text-slate-700"
-                            }`}
-                          >
-                            {s.step}
-                          </span>
-                          {s.note && (
-                            <span className="text-[9px] font-bold text-slate-400">
-                              {s.note}
-                            </span>
-                          )}
-                        </div>
-                        <span
-                          className={`text-xs font-mono font-black ${
-                            s.value > 0 ? "text-indigo-600" : "text-slate-400"
-                          }`}
-                        >
-                          {s.step.includes("Fator") ||
-                          s.step.includes("Multiplicadores")
-                            ? `x${s.value.toFixed(2)}`
-                            : `R$ ${s.value.toFixed(2)}`}
-                        </span>
-                      </div>
-                    ))}
                   </div>
                 </div>
-              );
-            })()
+              </div>
+              <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
+                <div>
+                  <p className="text-[14px] font-black uppercase">
+                    Variáveis da Equação (Multiplicadores)
+                  </p>
+                  <p className="text-[12px] font-bold  mt-1">
+                    Custo/km (C_km), tipo do veículo (V) e taxa fixa (F) seguem o
+                    veículo selecionado para a rota.
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
+                    <span className="text-[12px] font-black uppercase text-slate-400">
+                      C_km
+                    </span>
+                    <div className="text-[14px] font-mono font-black text-slate-700">
+                      R${" "}
+                      {proSelection.distKm > 0
+                        ? (
+                            proSelection.pricing.base / proSelection.distKm
+                          ).toFixed(2)
+                        : "0.00"}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
+                    <span className="text-[12px] font-black uppercase text-slate-400">
+                      V
+                    </span>
+                    <div className="text-[14px] font-mono font-black text-slate-700">
+                      x{proSelection.pricing.multipliers.V.toFixed(2)}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
+                    <span className="text-[12px] font-black uppercase text-slate-400">
+                      Taxa fixa (F)
+                    </span>
+                    <div className="text-[14px] font-mono font-black text-slate-700">
+                      R$ {proSelection.pricing.fixedFee.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <label className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-500 uppercase">
+                      Peso (kg) - W
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={pricingParams.weightKg}
+                      onChange={(event) =>
+                        updatePricingParam(
+                          "weightKg",
+                          Number(event.target.value)
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-500 uppercase">
+                      Modo peso
+                    </span>
+                    <select
+                      value={pricingParams.weightMode}
+                      onChange={(event) =>
+                        updatePricingParam(
+                          "weightMode",
+                          event.target.value as PricingParams["weightMode"]
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                    >
+                      <option value="BRACKETS">Faixas</option>
+                      <option value="CONTINUOUS">Contínuo</option>
+                    </select>
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-500 uppercase">
+                      Trânsito - T
+                    </span>
+                    <select
+                      value={pricingParams.traffic}
+                      onChange={(event) =>
+                        updatePricingParam(
+                          "traffic",
+                          event.target.value as PricingParams["traffic"]
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                    >
+                      <option value="LIVRE">Livre</option>
+                      <option value="MODERADO">Moderado</option>
+                      <option value="INTENSO">Intenso</option>
+                      <option value="MUITO_INTENSO">Muito intenso</option>
+                    </select>
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-500 uppercase">
+                      Clima - C
+                    </span>
+                    <select
+                      value={pricingParams.climate}
+                      onChange={(event) =>
+                        updatePricingParam(
+                          "climate",
+                          event.target.value as PricingParams["climate"]
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                    >
+                      <option value="CEU_LIMPO">Céu limpo</option>
+                      <option value="CHUVA_FRACA">Chuva fraca</option>
+                      <option value="CHUVA_FORTE">Chuva forte</option>
+                      <option value="TEMPESTADE">Tempestade</option>
+                    </select>
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-500 uppercase">
+                      SLA
+                    </span>
+                    <select
+                      value={pricingParams.sla}
+                      onChange={(event) =>
+                        updatePricingParam(
+                          "sla",
+                          event.target.value as PricingParams["sla"]
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                    >
+                      <option value="NORMAL">Normal</option>
+                      <option value="SAME_DAY">Same day</option>
+                      <option value="EXPRESS">Express</option>
+                      <option value="IMEDIATA">Imediata</option>
+                    </select>
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-500 uppercase">
+                      Risco - R
+                    </span>
+                    <select
+                      value={pricingParams.risk}
+                      onChange={(event) =>
+                        updatePricingParam(
+                          "risk",
+                          event.target.value as PricingParams["risk"]
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                    >
+                      <option value="BAIXO">Baixo</option>
+                      <option value="MEDIO">Médio</option>
+                      <option value="ALTO">Alto</option>
+                      <option value="MUITO_ALTO">Muito alto</option>
+                    </select>
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-500 uppercase">
+                      Pedidos - S
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={pricingParams.pedidos}
+                      onChange={(event) =>
+                        updatePricingParam(
+                          "pedidos",
+                          Number(event.target.value)
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-500 uppercase">
+                      Motoristas - S
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={pricingParams.motoristas}
+                      onChange={(event) =>
+                        updatePricingParam(
+                          "motoristas",
+                          Number(event.target.value)
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-[10px] font-black text-slate-500 uppercase">
+                      Pacote 300g (R$)
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={pricingParams.packagePrice300g}
+                      onChange={(event) =>
+                        updatePricingParam(
+                          "packagePrice300g",
+                          Number(event.target.value)
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
+                    />
+                  </label>
+                </div>
+              </div>
+              <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-2">
+                <p className="text-[10px] font-black text-slate-400 tracking-widest mb-4 px-2">
+                  Memória de Cálculo (Pro)
+                </p>
+                {proSelection.pricing.breakdownSteps.map((s, i) => (
+                  <div
+                    key={i}
+                    className="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-50 last:border-0"
+                  >
+                    <div className="flex flex-col">
+                      <span
+                        className={`text-[11px] font-black ${
+                          s.step.includes("Adicional")
+                            ? "text-indigo-600"
+                            : "text-slate-700"
+                        }`}
+                      >
+                        {s.step}
+                      </span>
+                      {s.note && (
+                        <span className="text-[9px] font-bold text-slate-400">
+                          {s.note}
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      className={`text-xs font-mono font-black ${
+                        s.value > 0 ? "text-indigo-600" : "text-slate-400"
+                      }`}
+                    >
+                      {s.step.includes("Fator") ||
+                      s.step.includes("Multiplicadores")
+                        ? `x${s.value.toFixed(2)}`
+                        : `R$ ${s.value.toFixed(2)}`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
           ) : (
             <div className="space-y-4">
               <div className="bg-indigo-600 p-4 rounded-[1rem] text-white shadow-xl">
@@ -1351,26 +1441,6 @@ const App: React.FC = () => {
               </div>
             </div>
           )}
-          {
-            <div className="grid grid-cols-3 gap-1">
-              <div className="bg-emerald-50 p-2 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center">
-                <span className="text-[10px] font-black uppercase text-emerald-400 mb-1">
-                  Pacotes
-                </span>
-                <div className="text-3xl font-black">
-                  {operationPricingTotal?.totalEncomendas}
-                </div>
-              </div>
-              <div className="bg-blue-50 p-2 rounded-3xl border border-blue-100 flex flex-col items-center justify-center">
-                <span className="text-[10px] font-black uppercase text-blue-400 mb-1">
-                  Paradas
-                </span>
-                <div className="text-3xl font-black">
-                  {operationPricingTotal?.paradasUnicas}
-                </div>
-              </div>
-            </div>
-          }
           {/* TABELA DE RESUMO PRO - SÓ APARECE EM VISUALIZAÇÃO GERAL */}
           {true && (
             <div className="mt-12 space-y-4 pb-20">
@@ -1469,11 +1539,9 @@ const App: React.FC = () => {
                               ? "bg-emerald-50/50"
                               : ""
                           }`}
+                          onClick={() => setSelectedRoute(route.nome)}
                         >
-                          <td
-                            className="p-1"
-                            onClick={() => setSelectedRoute(route.nome)}
-                          >
+                          <td className="p-1">
                             <span
                               className={`text-xs font-black uppercase transition-colors ${
                                 selectedRoute === route.nome
@@ -1521,6 +1589,7 @@ const App: React.FC = () => {
                                   [route.nome]: nextVehicle,
                                 }));
                               }}
+                              onClick={(event) => event.stopPropagation()}
                               className="bg-white text-[10px] font-black text-slate-700 uppercase border border-slate-200 rounded-lg px-2 py-1 hover:border-emerald-400 focus:border-emerald-500 outline-none"
                             >
                               <option value="moto">Moto</option>
