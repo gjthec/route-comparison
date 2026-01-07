@@ -194,6 +194,11 @@ const App: React.FC = () => {
       ).size;
       const distKm =
         pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
+      const totalPesoKg = pts.reduce((sum, p) => sum + (p.peso_kg || 0), 0);
+      const totalVolumeCm3 = pts.reduce(
+        (sum, p) => sum + (p.volume_cm3 || 0),
+        0
+      );
       const vehicle = routeVehicles[name] ?? DEFAULT_ROUTE_VEHICLE;
       const pricing = calculatePriceEnterprise(
         distKm,
@@ -208,6 +213,8 @@ const App: React.FC = () => {
         pacotes: pts.length,
         paradas: uniqueStops,
         distancia: distKm,
+        pesoKg: totalPesoKg,
+        volumeCm3: totalVolumeCm3,
       };
     });
 
@@ -1481,6 +1488,16 @@ const App: React.FC = () => {
                             />
                           </div>
                         </th>
+                        <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right">
+                          <div className="flex items-center justify-end">
+                            Peso (KG)
+                          </div>
+                        </th>
+                        <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right">
+                          <div className="flex items-center justify-end">
+                            Volume (CM3)
+                          </div>
+                        </th>
                         <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right cursor-pointer group hover:bg-slate-800 transition-colors">
                           <div className="flex items-center justify-end">
                             Multi-Pacotes (R$)
@@ -1560,6 +1577,16 @@ const App: React.FC = () => {
                               }`}
                             >
                               {route.distancia.toFixed(2)} km
+                            </span>
+                          </td>
+                          <td className="p-1 text-right">
+                            <span className="text-xs font-mono font-black text-slate-600">
+                              {route.pesoKg.toFixed(2)}
+                            </span>
+                          </td>
+                          <td className="p-1 text-right">
+                            <span className="text-xs font-mono font-black text-slate-600">
+                              {route.volumeCm3.toFixed(0)}
                             </span>
                           </td>
                           <td className="p-1 text-right">
