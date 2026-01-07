@@ -1147,29 +1147,29 @@ const App: React.FC = () => {
                   <div className="text-[14px] mt-4 font-bold text-slate-200 uppercase flex gap-1">
                     <span>{proSelection.distKm.toFixed(2)} KM</span>
                   </div>
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <div className="bg-white/10 rounded-2xl p-2 text-center">
+                      <span className="text-[11px] font-black uppercase text-emerald-100">
+                        Pacotes
+                      </span>
+                      <div className="text-2xl font-black">
+                        {proSelection.pacotes}
+                      </div>
+                    </div>
+                    <div className="bg-white/10 rounded-2xl p-2 text-center">
+                      <span className="text-[11px] font-black uppercase text-sky-100">
+                        Paradas
+                      </span>
+                      <div className="text-2xl font-black">
+                        {proSelection.paradas}
+                      </div>
+                    </div>
+                  </div>
                   {selectedRoute === ALL_VALUE && (
                     <div className="text-[10px] mt-2 font-bold text-white/40 uppercase">
                       Base: {routeNames.length} rotas otimizadas
                     </div>
                   )}
-                </div>
-                <div className="grid grid-cols-2 gap-1">
-                  <div className="bg-emerald-50 p-2 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center">
-                    <span className="text-[10px] font-black uppercase text-emerald-400 mb-1">
-                      Pacotes
-                    </span>
-                    <div className="text-3xl font-black">
-                      {proSelection.pacotes}
-                    </div>
-                  </div>
-                  <div className="bg-blue-50 p-2 rounded-3xl border border-blue-100 flex flex-col items-center justify-center">
-                    <span className="text-[10px] font-black uppercase text-blue-400 mb-1">
-                      Paradas
-                    </span>
-                    <div className="text-3xl font-black">
-                      {proSelection.paradas}
-                    </div>
-                  </div>
                 </div>
               </div>
               <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
