@@ -862,14 +862,6 @@ const App: React.FC = () => {
               <div className="text-4xl md:text-5xl font-black tracking-tighter text-white">
                 R$ {activeDriverData.ValorTotal.toFixed(2)}
               </div>
-              <div className="mt-3 flex flex-col gap-1">
-                <p className="text-sm md:text-xs font-bold text-white uppercase">
-                  {activeDriverData.mot_nome}
-                </p>
-                <p className="text-[11px] md:text-[10px] font-bold text-slate-300 uppercase">
-                  CAFs vinculados: {activeDriverData.CafID}
-                </p>
-              </div>
               {activeDriverStats && (
                 <div className="mt-2 flex flex-wrap gap-2">
                   <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
@@ -898,6 +890,14 @@ const App: React.FC = () => {
                   </div>
                 </div>
               )}
+              <div className="mt-3 flex flex-col gap-1">
+                <p className="text-sm md:text-xs font-bold text-white uppercase">
+                  {activeDriverData.mot_nome}
+                </p>
+                <p className="text-[11px] md:text-[10px] font-bold text-slate-300 uppercase">
+                  CAFs vinculados: {activeDriverData.CafID}
+                </p>
+              </div>
             </div>
 
             <div className="bg-slate-50 p-4 rounded-[1.6rem] border border-slate-100 space-y-2">
