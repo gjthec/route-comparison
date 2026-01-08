@@ -1570,238 +1570,236 @@ const App: React.FC = () => {
               </div>
 
               <div className="overflow-hidden border border-slate-200 rounded-[1rem] shadow-sm">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse bg-white">
-                    <thead>
-                      <tr className="bg-slate-900 text-white">
-                        <th className="p-2 text-[10px] font-black uppercase tracking-widest text-center">
-                          <div className="flex items-center justify-center">
-                            Veículo
-                          </div>
-                        </th>
-                        <th
-                          className="p-1 text-[10px] font-black uppercase tracking-widest cursor-pointer group hover:bg-slate-800 transition-colors"
-                          onClick={() => handleSortPro("nome")}
-                        >
-                          <div className="flex items-center">
-                            Rota{" "}
-                            <SortIcon
-                              active={proSortKey === "nome"}
-                              dir={proSortDir}
-                            />
-                          </div>
-                        </th>
-                        <th
-                          className="p-2 text-[10px] font-black uppercase tracking-widest text-right cursor-pointer group hover:bg-slate-800 transition-colors"
-                          onClick={() => handleSortPro("distancia")}
-                        >
-                          <div className="flex items-center justify-end">
-                            Distância{" "}
-                            <SortIcon
-                              active={proSortKey === "distancia"}
-                              dir={proSortDir}
-                            />
-                          </div>
-                        </th>
-                        <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right">
-                          <div className="flex items-center justify-end">
-                            Peso (KG)
-                          </div>
-                        </th>
-                        <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right">
-                          <div className="flex items-center justify-end">
-                            Volume (M3)
-                          </div>
-                        </th>
-                        <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right cursor-pointer group hover:bg-slate-800 transition-colors">
-                          <div className="flex items-center justify-end">
-                            Multipacotes (R$)
-                          </div>
-                        </th>
-                        <th
-                          className="p-2 text-[10px] font-black uppercase tracking-widest text-right cursor-pointer group hover:bg-slate-800 transition-colors"
-                          onClick={() => handleSortPro("faturamento")}
-                        >
-                          <div className="flex items-center justify-end">
-                            Preço Total{" "}
-                            <SortIcon
-                              active={proSortKey === "faturamento"}
-                              dir={proSortDir}
-                            />
-                          </div>
-                        </th>
-                        <th
-                          className="p-1 text-[10px] font-black uppercase tracking-widest text-center cursor-pointer group hover:bg-slate-800 transition-colors"
-                          onClick={() => handleSortPro("pacotes")}
-                        >
-                          <div className="flex items-center justify-center">
-                            Pacotes{" "}
-                            <SortIcon
-                              active={proSortKey === "pacotes"}
-                              dir={proSortDir}
-                            />
-                          </div>
-                        </th>
-                        <th
-                          className="p-1 text-[10px] font-black uppercase tracking-widest text-center cursor-pointer group hover:bg-slate-800 transition-colors"
-                          onClick={() => handleSortPro("paradas")}
-                        >
-                          <div className="flex items-center justify-center">
-                            Paradas{" "}
-                            <SortIcon
-                              active={proSortKey === "paradas"}
-                              dir={proSortDir}
-                            />
-                          </div>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {allRoutesSummaryPro.map((route, idx) => (
-                        <tr
-                          key={idx}
-                          className={`hover:bg-slate-50 transition-colors group cursor-pointer ${
-                            selectedRoute === route.nome
-                              ? "bg-emerald-50/50"
-                              : ""
-                          }`}
-                          onClick={() => setSelectedRoute(route.nome)}
-                        >
-                          <td className="p-1 text-center">
-                            <select
-                              value={route.vehicle}
-                              onChange={(event) => {
-                                const nextVehicle = event.target
-                                  .value as VehicleType;
-                                setRouteVehicles((prev) => ({
-                                  ...prev,
-                                  [route.nome]: nextVehicle,
-                                }));
-                              }}
-                              onClick={(event) => event.stopPropagation()}
-                              className="bg-white text-[10px] font-black text-slate-700 uppercase border border-slate-200 rounded-lg px-2 py-1 hover:border-emerald-400 focus:border-emerald-500 outline-none"
-                            >
-                              <option value="moto">Moto</option>
-                              <option value="carro">Carro</option>
-                              <option value="van">Van</option>
-                              <option value="caminhao">Caminhão</option>
-                            </select>
-                          </td>
-                          <td className="p-1">
-                            <span
-                              className={`text-xs font-black uppercase transition-colors ${
-                                selectedRoute === route.nome
-                                  ? "text-emerald-600"
-                                  : "text-slate-700 group-hover:text-emerald-600"
-                              }`}
-                            >
-                              {route.nome}
+                <table className="w-full text-left border-collapse bg-white">
+                  <thead>
+                    <tr className="bg-slate-900 text-white">
+                      <th className="p-2 text-[10px] font-black uppercase tracking-widest text-center">
+                        <div className="flex items-center justify-center">
+                          Veículo
+                        </div>
+                      </th>
+                      <th
+                        className="p-1 text-[10px] font-black uppercase tracking-widest cursor-pointer group hover:bg-slate-800 transition-colors"
+                        onClick={() => handleSortPro("nome")}
+                      >
+                        <div className="flex items-center">
+                          Rota{" "}
+                          <SortIcon
+                            active={proSortKey === "nome"}
+                            dir={proSortDir}
+                          />
+                        </div>
+                      </th>
+                      <th
+                        className="p-2 text-[10px] font-black uppercase tracking-widest text-right cursor-pointer group hover:bg-slate-800 transition-colors"
+                        onClick={() => handleSortPro("distancia")}
+                      >
+                        <div className="flex items-center justify-end">
+                          Distância{" "}
+                          <SortIcon
+                            active={proSortKey === "distancia"}
+                            dir={proSortDir}
+                          />
+                        </div>
+                      </th>
+                      <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right">
+                        <div className="flex items-center justify-end">
+                          Peso (KG)
+                        </div>
+                      </th>
+                      <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right">
+                        <div className="flex items-center justify-end">
+                          Volume (M3)
+                        </div>
+                      </th>
+                      <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right cursor-pointer group hover:bg-slate-800 transition-colors">
+                        <div className="flex items-center justify-end">
+                          Multipacotes (R$)
+                        </div>
+                      </th>
+                      <th
+                        className="p-2 text-[10px] font-black uppercase tracking-widest text-right cursor-pointer group hover:bg-slate-800 transition-colors"
+                        onClick={() => handleSortPro("faturamento")}
+                      >
+                        <div className="flex items-center justify-end">
+                          Preço Total{" "}
+                          <SortIcon
+                            active={proSortKey === "faturamento"}
+                            dir={proSortDir}
+                          />
+                        </div>
+                      </th>
+                      <th
+                        className="p-1 text-[10px] font-black uppercase tracking-widest text-center cursor-pointer group hover:bg-slate-800 transition-colors"
+                        onClick={() => handleSortPro("pacotes")}
+                      >
+                        <div className="flex items-center justify-center">
+                          Pacotes{" "}
+                          <SortIcon
+                            active={proSortKey === "pacotes"}
+                            dir={proSortDir}
+                          />
+                        </div>
+                      </th>
+                      <th
+                        className="p-1 text-[10px] font-black uppercase tracking-widest text-center cursor-pointer group hover:bg-slate-800 transition-colors"
+                        onClick={() => handleSortPro("paradas")}
+                      >
+                        <div className="flex items-center justify-center">
+                          Paradas{" "}
+                          <SortIcon
+                            active={proSortKey === "paradas"}
+                            dir={proSortDir}
+                          />
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {allRoutesSummaryPro.map((route, idx) => (
+                      <tr
+                        key={idx}
+                        className={`hover:bg-slate-50 transition-colors group cursor-pointer ${
+                          selectedRoute === route.nome
+                            ? "bg-emerald-50/50"
+                            : ""
+                        }`}
+                        onClick={() => setSelectedRoute(route.nome)}
+                      >
+                        <td className="p-1 text-center">
+                          <select
+                            value={route.vehicle}
+                            onChange={(event) => {
+                              const nextVehicle = event.target
+                                .value as VehicleType;
+                              setRouteVehicles((prev) => ({
+                                ...prev,
+                                [route.nome]: nextVehicle,
+                              }));
+                            }}
+                            onClick={(event) => event.stopPropagation()}
+                            className="bg-white text-[10px] font-black text-slate-700 uppercase border border-slate-200 rounded-lg px-2 py-1 hover:border-emerald-400 focus:border-emerald-500 outline-none"
+                          >
+                            <option value="moto">Moto</option>
+                            <option value="carro">Carro</option>
+                            <option value="van">Van</option>
+                            <option value="caminhao">Caminhão</option>
+                          </select>
+                        </td>
+                        <td className="p-1">
+                          <span
+                            className={`text-xs font-black uppercase transition-colors ${
+                              selectedRoute === route.nome
+                                ? "text-emerald-600"
+                                : "text-slate-700 group-hover:text-emerald-600"
+                            }`}
+                          >
+                            {route.nome}
+                          </span>
+                        </td>
+                        <td className="p-1 text-center">
+                          <span
+                            className={`inline-flex items-center justify-center text-[10px] font-black px-2 py-1 rounded-lg border transition-colors relative ${
+                              proSortKey === "paradas"
+                                ? "bg-indigo-600 text-white border-indigo-600"
+                                : "bg-emerald-50 text-emerald-700 border-emerald-100"
+                            }`}
+                          >
+                            <span className="peer cursor-help">
+                              {formatCurrency(route.faturamento.base)}
                             </span>
-                          </td>
-                          <td className="p-1 text-center">
-                            <span
-                              className={`inline-flex items-center justify-center text-[10px] font-black px-2 py-1 rounded-lg border transition-colors relative ${
-                                proSortKey === "paradas"
-                                  ? "bg-indigo-600 text-white border-indigo-600"
-                                  : "bg-emerald-50 text-emerald-700 border-emerald-100"
-                              }`}
-                            >
-                              <span className="peer cursor-help">
-                                {formatCurrency(route.faturamento.base)}
-                              </span>
-                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
-                                {route.distancia.toFixed(2)} km
-                              </span>
+                            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
+                              {route.distancia.toFixed(2)} km
                             </span>
-                          </td>
-                          <td className="p-1 text-right">
-                            <span className="text-xs font-mono font-black text-slate-600 relative inline-flex">
-                              <span className="peer cursor-help">
-                                {formatCurrency(
-                                  route.pesoKg * pricingParams.pricePerKg
-                                )}
-                              </span>
-                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
-                                {route.pesoKg.toFixed(2)} kg
-                              </span>
+                          </span>
+                        </td>
+                        <td className="p-1 text-right">
+                          <span className="text-xs font-mono font-black text-slate-600 relative inline-flex">
+                            <span className="peer cursor-help">
+                              {formatCurrency(
+                                route.pesoKg * pricingParams.pricePerKg
+                              )}
                             </span>
-                          </td>
-                          <td className="p-1 text-right">
-                            <span className="text-xs font-mono font-black text-slate-600 relative inline-flex">
-                              <span className="peer cursor-help">
-                                {formatCurrency(
-                                  route.volumeM3 * pricingParams.pricePerM3
-                                )}
-                              </span>
-                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
-                                {route.volumeM3.toFixed(3)} m³
-                              </span>
+                            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
+                              {route.pesoKg.toFixed(2)} kg
                             </span>
-                          </td>
-                          <td className="p-1 text-right">
-                            <span className="text-xs font-mono font-black text-slate-600 relative inline-flex">
-                              <span className="peer cursor-help">
-                                {formatCurrency(
-                                  (route.pacotes - route.paradas) *
-                                    pricingParams.packagePriceSamePoint
-                                )}
-                              </span>
-                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
-                                {route.pacotes - route.paradas} *{" "}
-                                {pricingParams.packagePriceSamePoint}
-                              </span>
+                          </span>
+                        </td>
+                        <td className="p-1 text-right">
+                          <span className="text-xs font-mono font-black text-slate-600 relative inline-flex">
+                            <span className="peer cursor-help">
+                              {formatCurrency(
+                                route.volumeM3 * pricingParams.pricePerM3
+                              )}
                             </span>
-                            {/* <span
-                              className={`peer cursor-help text-xs font-mono font-black ${
-                                proSortKey === "faturamento"
-                                  ? "text-indigo-600"
-                                  : "text-slate-600"
-                              }`}
-                            >
+                            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
+                              {route.volumeM3.toFixed(3)} m³
+                            </span>
+                          </span>
+                        </td>
+                        <td className="p-1 text-right">
+                          <span className="text-xs font-mono font-black text-slate-600 relative inline-flex">
+                            <span className="peer cursor-help">
                               {formatCurrency(
                                 (route.pacotes - route.paradas) *
-                                  (pricingParams.packagePriceSamePoint)
+                                  pricingParams.packagePriceSamePoint
                               )}
-                            </span> */}
-                          </td>
-                          <td className="p-1 text-right">
-                            <span
-                              className={`text-xs font-mono font-black ${
-                                proSortKey === "faturamento"
-                                  ? "text-indigo-600"
-                                  : "text-slate-600"
-                              }`}
-                            >
-                              {formatCurrency(route.faturamento.finalPrice)}
                             </span>
-                          </td>
-                          <td className="p-1 text-center">
-                            <span
-                              className={`inline-flex items-center justify-center text-[10px] font-black px-2 py-1 rounded-lg border transition-colors ${
-                                proSortKey === "pacotes"
-                                  ? "bg-indigo-600 text-white border-indigo-600"
-                                  : "bg-slate-100 text-slate-700 border-slate-200"
-                              }`}
-                            >
-                              {route.pacotes}
+                            <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
+                              {route.pacotes - route.paradas} *{" "}
+                              {pricingParams.packagePriceSamePoint}
                             </span>
-                          </td>
-                          <td className="p-1 text-center">
-                            <span
-                              className={`inline-flex items-center justify-center text-[10px] font-black px-2 py-1 rounded-lg border transition-colors ${
-                                proSortKey === "paradas"
-                                  ? "bg-indigo-600 text-white border-indigo-600"
-                                  : "bg-emerald-50 text-emerald-700 border-emerald-100"
-                              }`}
-                            >
-                              {route.paradas}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                          </span>
+                          {/* <span
+                            className={`peer cursor-help text-xs font-mono font-black ${
+                              proSortKey === "faturamento"
+                                ? "text-indigo-600"
+                                : "text-slate-600"
+                            }`}
+                          >
+                            {formatCurrency(
+                              (route.pacotes - route.paradas) *
+                                (pricingParams.packagePriceSamePoint)
+                            )}
+                          </span> */}
+                        </td>
+                        <td className="p-1 text-right">
+                          <span
+                            className={`text-xs font-mono font-black ${
+                              proSortKey === "faturamento"
+                                ? "text-indigo-600"
+                                : "text-slate-600"
+                            }`}
+                          >
+                            {formatCurrency(route.faturamento.finalPrice)}
+                          </span>
+                        </td>
+                        <td className="p-1 text-center">
+                          <span
+                            className={`inline-flex items-center justify-center text-[10px] font-black px-2 py-1 rounded-lg border transition-colors ${
+                              proSortKey === "pacotes"
+                                ? "bg-indigo-600 text-white border-indigo-600"
+                                : "bg-slate-100 text-slate-700 border-slate-200"
+                            }`}
+                          >
+                            {route.pacotes}
+                          </span>
+                        </td>
+                        <td className="p-1 text-center">
+                          <span
+                            className={`inline-flex items-center justify-center text-[10px] font-black px-2 py-1 rounded-lg border transition-colors ${
+                              proSortKey === "paradas"
+                                ? "bg-indigo-600 text-white border-indigo-600"
+                                : "bg-emerald-50 text-emerald-700 border-emerald-100"
+                            }`}
+                          >
+                            {route.paradas}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
