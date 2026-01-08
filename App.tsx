@@ -1283,12 +1283,14 @@ const App: React.FC = () => {
                                 key={key}
                                 className="hover:bg-slate-50 transition-colors group cursor-pointer"
                               >
-                                <td className="p-1 text-center">{key}</td>
-                                <td className="p-1 text-center">
+                                <td className="p-1 text-center text-xs font-black uppercase text-slate-700">
+                                  {key}
+                                </td>
+                                <td className="p-1 text-center text-xs font-mono font-black text-slate-600">
                                   {formatCurrency(TABLES.C_KM[key])}
                                 </td>
 
-                                <td className="p-1 text-center">
+                                <td className="p-1 text-center text-xs font-mono font-black text-slate-600">
                                   {formatCurrency(TABLES.FIXED_FEE[key])}
                                 </td>
                               </tr>
