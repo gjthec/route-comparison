@@ -1,6 +1,6 @@
 import { PricingParams, PricingResult } from "./types";
 
-const TABLES = {
+export const TABLES = {
   C_KM: { moto: 1.2, carro: 2.5, van: 4.2, caminhao: 7.5 },
   // V_FACTOR: { moto: 1.0, carro: 1.15, van: 1.35, caminhao: 1.8 },
   TRAFFIC: { LIVRE: 1.0, MODERADO: 1.15, INTENSO: 1.35, MUITO_INTENSO: 1.6 },
