@@ -70,7 +70,7 @@ export interface PricingParams {
   motoristas: number;
   pricePerKg: number;
   pricePerM3: number;
-  packagePrice300g: number; // Novo campo para regra de 50%
+  packagePriceSamePoint: number; // Novo campo para regra de 50%
 }
 
 export interface PricingResult {
@@ -79,7 +79,6 @@ export interface PricingResult {
   fixedFee: number;
   multiPackageAddition: number; // Valor somado por pacotes extras
   multipliers: {
-    V: number;
     T: number;
     C: number;
     S: number;

@@ -79,8 +79,8 @@ const App: React.FC = () => {
     pedidos: 100,
     motoristas: 100,
     pricePerKg: 0.15,
-    pricePerM3: 0.1,
-    packagePrice300g: 3,
+    pricePerM3: 10,
+    packagePriceSamePoint: 1,
   });
   const [routeVehicles, setRouteVehicles] = useState<
     Record<string, VehicleType>
@@ -613,7 +613,7 @@ const App: React.FC = () => {
       mapRRef.current.fitBounds(
         L.latLngBounds(rightPts.map((p) => [p.lat, p.long])),
         { padding: [80, 80] }
-    );
+      );
   }, [selectedDriver, selectedRoute, updateSide]);
 
   useEffect(() => {
@@ -725,7 +725,8 @@ const App: React.FC = () => {
       pacotes,
       paradas,
       totalPesoKg,
-      totalVolumeM3
+      totalVolumeM3,
+      routeVehicles
     );
     return {
       label: "Total Projetado (Operação)",
@@ -813,7 +814,7 @@ const App: React.FC = () => {
                 <div className="flex justify-between items-end">
                   <div>
                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">
-                      Adicional Multi-pacotes (50%)
+                      Adicional Multipacotes
                     </p>
                     <div className="text-4xl font-black text-indigo-400">
                       R$ {auditData.plannedAddition.toFixed(2)}
@@ -1178,7 +1179,7 @@ const App: React.FC = () => {
         <div className="space-y-6">
           {proSelection ? (
             <>
-              <div className="space-y-4 pb-4">
+              <div className="space-y-4 pb-0">
                 <div
                   className={`${
                     selectedRoute !== ALL_VALUE
@@ -1229,19 +1230,48 @@ const App: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="text-[12px] md:text-[13px] mt-2 font-bold text-slate-200 uppercase flex flex-wrap gap-3">
-                    <span>{formatCurrency(proSelection.pricing.base)}</span>
-                    <span>
-                      {formatCurrency(
-                        proSelection.pesoKg * pricingParams.pricePerKg
-                      )}
-                    </span>
-                    <span>
-                      {formatCurrency(
-                        proSelection.volumeM3 * pricingParams.pricePerM3
-                      )}
-                    </span>
-                  </div>
+                  {/* <div className="text-[12px] md:text-[13px] mt-2 font-bold text-slate-200 uppercase flex flex-wrap gap-3">
+                    <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
+                      <span className="text-[11px] md:text-[10px] font-black uppercase text-sky-100 leading-none">
+                        Distância
+                      </span>
+                      <div className="text-xl md:text-2xl font-black leading-none">
+                        {formatCurrency(proSelection.pricing.base)}
+                      </div>
+                    </div>
+                    <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
+                      <span className="text-[11px] md:text-[10px] font-black uppercase text-sky-100 leading-none">
+                        Peso
+                      </span>
+                      <div className="text-xl md:text-2xl font-black leading-none">
+                        {formatCurrency(proSelection.pesoKg * pricingParams.pricePerKg)}
+                      </div>
+                    </div>
+                    <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
+                      <span className="text-[11px] md:text-[10px] font-black uppercase text-sky-100 leading-none">
+                        Volume
+                      </span>
+                      <div className="text-xl md:text-2xl font-black leading-none">
+                        {formatCurrency(proSelection.volumeM3 * pricingParams.pricePerM3)}
+                      </div>
+                    </div>
+                    <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
+                      <span className="text-[11px] md:text-[10px] font-black uppercase text-sky-100 leading-none">
+                        Multipacotes
+                      </span>
+                      <div className="text-xl md:text-2xl font-black leading-none">
+                        {formatCurrency(proSelection.pricing.multiPackageAddition)}
+                      </div>
+                    </div>
+                    <div className="bg-white/10 rounded-lg px-2 py-1 inline-flex flex-col items-center text-center">
+                      <span className="text-[11px] md:text-[10px] font-black uppercase text-sky-100 leading-none">
+                        Custo Fixo
+                      </span>
+                      <div className="text-xl md:text-2xl font-black leading-none">
+                        {formatCurrency(proSelection.pricing.fixedFee * routeNames.length)}
+                      </div>
+                    </div>
+                  </div> */}
                   {selectedRoute === ALL_VALUE && (
                     <div className="text-[10px] mt-2 font-bold text-white/40 uppercase">
                       Base: {routeNames.length} rotas otimizadas
@@ -1249,14 +1279,14 @@ const App: React.FC = () => {
                   )}
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
+              <div className="bg-white p-2 rounded-[1rem] border border-slate-100 shadow-sm space-y-4">
                 <div>
                   <p className="text-[14px] font-black uppercase">
                     Variáveis da Equação (Multiplicadores)
                   </p>
                   <p className="text-[12px] font-bold  mt-1">
-                    Custo/km (C_km), tipo do veículo (V) e taxa fixa (F) seguem o
-                    veículo selecionado para a rota.
+                    Custo/km (C_km), taxa fixa (CF) seguem o veículo selecionado
+                    para a rota.
                   </p>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -1273,17 +1303,17 @@ const App: React.FC = () => {
                         : "0.00"}
                     </div>
                   </div>
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
+                  {/* <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
                     <span className="text-[12px] font-black uppercase text-slate-400">
                       V
                     </span>
                     <div className="text-[14px] font-mono font-black text-slate-700">
                       x{proSelection.pricing.multipliers.V.toFixed(2)}
                     </div>
-                  </div>
+                  </div> */}
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
                     <span className="text-[12px] font-black uppercase text-slate-400">
-                      Taxa fixa (F)
+                      Custo fixo (CF)
                     </span>
                     <div className="text-[14px] font-mono font-black text-slate-700">
                       R$ {proSelection.pricing.fixedFee.toFixed(2)}
@@ -1329,132 +1359,16 @@ const App: React.FC = () => {
                   </label>
                   <label className="space-y-1">
                     <span className="text-[10px] font-black text-slate-500 uppercase">
-                      Trânsito - T
-                    </span>
-                    <select
-                      value={pricingParams.traffic}
-                      onChange={(event) =>
-                        updatePricingParam(
-                          "traffic",
-                          event.target.value as PricingParams["traffic"]
-                        )
-                      }
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                    >
-                      <option value="LIVRE">Livre</option>
-                      <option value="MODERADO">Moderado</option>
-                      <option value="INTENSO">Intenso</option>
-                      <option value="MUITO_INTENSO">Muito intenso</option>
-                    </select>
-                  </label>
-                  <label className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-500 uppercase">
-                      Clima - C
-                    </span>
-                    <select
-                      value={pricingParams.climate}
-                      onChange={(event) =>
-                        updatePricingParam(
-                          "climate",
-                          event.target.value as PricingParams["climate"]
-                        )
-                      }
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                    >
-                      <option value="CEU_LIMPO">Céu limpo</option>
-                      <option value="CHUVA_FRACA">Chuva fraca</option>
-                      <option value="CHUVA_FORTE">Chuva forte</option>
-                      <option value="TEMPESTADE">Tempestade</option>
-                    </select>
-                  </label>
-                  <label className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-500 uppercase">
-                      SLA
-                    </span>
-                    <select
-                      value={pricingParams.sla}
-                      onChange={(event) =>
-                        updatePricingParam(
-                          "sla",
-                          event.target.value as PricingParams["sla"]
-                        )
-                      }
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                    >
-                      <option value="NORMAL">Normal</option>
-                      <option value="SAME_DAY">Same day</option>
-                      <option value="EXPRESS">Express</option>
-                      <option value="IMEDIATA">Imediata</option>
-                    </select>
-                  </label>
-                  <label className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-500 uppercase">
-                      Risco - R
-                    </span>
-                    <select
-                      value={pricingParams.risk}
-                      onChange={(event) =>
-                        updatePricingParam(
-                          "risk",
-                          event.target.value as PricingParams["risk"]
-                        )
-                      }
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
-                    >
-                      <option value="BAIXO">Baixo</option>
-                      <option value="MEDIO">Médio</option>
-                      <option value="ALTO">Alto</option>
-                      <option value="MUITO_ALTO">Muito alto</option>
-                    </select>
-                  </label>
-                  <label className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-500 uppercase">
-                      Pedidos - S
-                    </span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={pricingParams.pedidos}
-                      onChange={(event) =>
-                        updatePricingParam(
-                          "pedidos",
-                          Number(event.target.value)
-                        )
-                      }
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
-                    />
-                  </label>
-                  <label className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-500 uppercase">
-                      Motoristas - S
-                    </span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={pricingParams.motoristas}
-                      onChange={(event) =>
-                        updatePricingParam(
-                          "motoristas",
-                          Number(event.target.value)
-                        )
-                      }
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
-                    />
-                  </label>
-                  <label className="space-y-1">
-                    <span className="text-[10px] font-black text-slate-500 uppercase">
-                      Pacote 300g (R$)
+                      Multipacotes (R$)
                     </span>
                     <input
                       type="number"
                       min="0"
                       step="0.1"
-                      value={pricingParams.packagePrice300g}
+                      value={pricingParams.packagePriceSamePoint}
                       onChange={(event) =>
                         updatePricingParam(
-                          "packagePrice300g",
+                          "packagePriceSamePoint",
                           Number(event.target.value)
                         )
                       }
@@ -1462,15 +1376,141 @@ const App: React.FC = () => {
                     />
                   </label>
                 </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center">
+                  <div className="text-[16px] font-black text-slate-500">
+                    Multiplicadores logisticos (T * C * SLA * R * S)
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 ">
+                    <label className="space-y-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase">
+                        Trânsito - T
+                      </span>
+                      <select
+                        value={pricingParams.traffic}
+                        onChange={(event) =>
+                          updatePricingParam(
+                            "traffic",
+                            event.target.value as PricingParams["traffic"]
+                          )
+                        }
+                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                      >
+                        <option value="LIVRE">Livre</option>
+                        <option value="MODERADO">Moderado</option>
+                        <option value="INTENSO">Intenso</option>
+                        <option value="MUITO_INTENSO">Muito intenso</option>
+                      </select>
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase">
+                        Clima - C
+                      </span>
+                      <select
+                        value={pricingParams.climate}
+                        onChange={(event) =>
+                          updatePricingParam(
+                            "climate",
+                            event.target.value as PricingParams["climate"]
+                          )
+                        }
+                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                      >
+                        <option value="CEU_LIMPO">Céu limpo</option>
+                        <option value="CHUVA_FRACA">Chuva fraca</option>
+                        <option value="CHUVA_FORTE">Chuva forte</option>
+                        <option value="TEMPESTADE">Tempestade</option>
+                      </select>
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase">
+                        SLA
+                      </span>
+                      <select
+                        value={pricingParams.sla}
+                        onChange={(event) =>
+                          updatePricingParam(
+                            "sla",
+                            event.target.value as PricingParams["sla"]
+                          )
+                        }
+                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                      >
+                        <option value="NORMAL">Normal</option>
+                        <option value="SAME_DAY">Same day</option>
+                        <option value="EXPRESS">Express</option>
+                        <option value="IMEDIATA">Imediata</option>
+                      </select>
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase">
+                        Risco - R
+                      </span>
+                      <select
+                        value={pricingParams.risk}
+                        onChange={(event) =>
+                          updatePricingParam(
+                            "risk",
+                            event.target.value as PricingParams["risk"]
+                          )
+                        }
+                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 uppercase"
+                      >
+                        <option value="BAIXO">Baixo</option>
+                        <option value="MEDIO">Médio</option>
+                        <option value="ALTO">Alto</option>
+                        <option value="MUITO_ALTO">Muito alto</option>
+                      </select>
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase">
+                        Rotas - S
+                      </span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={pricingParams.pedidos}
+                        onChange={(event) =>
+                          updatePricingParam(
+                            "pedidos",
+                            Number(event.target.value)
+                          )
+                        }
+                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
+                      />
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase">
+                        Motoristas - S
+                      </span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={pricingParams.motoristas}
+                        onChange={(event) =>
+                          updatePricingParam(
+                            "motoristas",
+                            Number(event.target.value)
+                          )
+                        }
+                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700"
+                      />
+                    </label>
+                  </div>
+                  <div className="text-[16px] font-black text-slate-500">
+                    S = ROTAS / MOTORISTAS
+                  </div>
+                </div>
               </div>
-              <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-2">
-                <p className="text-[10px] font-black text-slate-400 tracking-widest mb-4 px-2">
-                  Memória de Cálculo (Pro)
+              <div className="bg-white p-2 rounded-[1rem] border border-slate-100 shadow-sm space-y-2">
+                <p className="text-[14px] font-black text-slate-400 tracking-widest mb-1 px-2">
+                  Fórmula de cálculo (D + P + V) * ML + MP + CF
                 </p>
                 {proSelection.pricing.breakdownSteps.map((s, i) => (
                   <div
                     key={i}
-                    className="flex justify-between items-center p-3 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-50 last:border-0"
+                    className="flex justify-between items-center p-1 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-50 last:border-0"
                   >
                     <div className="flex flex-col">
                       <span
@@ -1534,9 +1574,7 @@ const App: React.FC = () => {
                   <table className="w-full text-left border-collapse bg-white">
                     <thead>
                       <tr className="bg-slate-900 text-white">
-                        <th
-                          className="p-2 text-[10px] font-black uppercase tracking-widest text-center"
-                        >
+                        <th className="p-2 text-[10px] font-black uppercase tracking-widest text-center">
                           <div className="flex items-center justify-center">
                             Veículo
                           </div>
@@ -1577,7 +1615,7 @@ const App: React.FC = () => {
                         </th>
                         <th className="p-2 text-[10px] font-black uppercase tracking-widest text-right cursor-pointer group hover:bg-slate-800 transition-colors">
                           <div className="flex items-center justify-end">
-                            Multi-Pacotes (R$)
+                            Multipacotes (R$)
                           </div>
                         </th>
                         <th
@@ -1701,8 +1739,20 @@ const App: React.FC = () => {
                             </span>
                           </td>
                           <td className="p-1 text-right">
-                            <span
-                              className={`text-xs font-mono font-black ${
+                            <span className="text-xs font-mono font-black text-slate-600 relative inline-flex">
+                              <span className="peer cursor-help">
+                                {formatCurrency(
+                                  (route.pacotes - route.paradas) *
+                                    pricingParams.packagePriceSamePoint
+                                )}
+                              </span>
+                              <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-max -translate-x-1/2 rounded-xl bg-slate-950 px-3 py-1 text-[10px] font-bold text-white opacity-0 shadow-xl transition-opacity peer-hover:opacity-100">
+                                {route.pacotes - route.paradas} *{" "}
+                                {pricingParams.packagePriceSamePoint}
+                              </span>
+                            </span>
+                            {/* <span
+                              className={`peer cursor-help text-xs font-mono font-black ${
                                 proSortKey === "faturamento"
                                   ? "text-indigo-600"
                                   : "text-slate-600"
@@ -1710,9 +1760,9 @@ const App: React.FC = () => {
                             >
                               {formatCurrency(
                                 (route.pacotes - route.paradas) *
-                                  (pricingParams.packagePrice300g / 2)
+                                  (pricingParams.packagePriceSamePoint)
                               )}
-                            </span>
+                            </span> */}
                           </td>
                           <td className="p-1 text-right">
                             <span
