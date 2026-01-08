@@ -1536,7 +1536,18 @@ const App: React.FC = () => {
               </div>
 
               <div className="border border-slate-200 rounded-[1rem] shadow-sm overflow-visible">
-                <table className="w-full table-fixed text-left border-collapse bg-white break-words">
+                <table className="w-full table-auto text-left border-collapse bg-white break-words">
+                  <colgroup>
+                    <col className="w-24" />
+                    <col />
+                    <col className="w-28" />
+                    <col className="w-28" />
+                    <col className="w-28" />
+                    <col className="w-32" />
+                    <col className="w-32" />
+                    <col className="w-24" />
+                    <col className="w-24" />
+                  </colgroup>
                   <thead>
                     <tr className="bg-slate-900 text-white">
                       <th className="p-2 text-[10px] font-black uppercase tracking-widest text-center whitespace-normal break-words">
@@ -1644,7 +1655,7 @@ const App: React.FC = () => {
                               }));
                             }}
                             onClick={(event) => event.stopPropagation()}
-                            className="bg-white text-[10px] font-black text-slate-700 uppercase border border-slate-200 rounded-lg px-2 py-1 hover:border-emerald-400 focus:border-emerald-500 outline-none"
+                            className="w-full min-w-[72px] bg-white text-[10px] font-black text-slate-700 uppercase border border-slate-200 rounded-lg px-2 py-1 hover:border-emerald-400 focus:border-emerald-500 outline-none"
                           >
                             <option value="moto">Moto</option>
                             <option value="carro">Carro</option>
