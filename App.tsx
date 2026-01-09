@@ -128,6 +128,28 @@ const App: React.FC = () => {
     [data]
   );
 
+  const routePointsByName = useMemo(() => {
+    const map = new Map<string, RoutePoint[]>();
+    data.forEach((point) => {
+      const list = map.get(point.routeName);
+      if (list) {
+        list.push(point);
+      } else {
+        map.set(point.routeName, [point]);
+      }
+    });
+    return map;
+  }, [data]);
+
+  const driverPackageCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    data.forEach((point) => {
+      if (!point.nome) return;
+      map.set(point.nome, (map.get(point.nome) || 0) + 1);
+    });
+    return map;
+  }, [data]);
+
   const driverMap = useMemo(() => {
     const map = new Map<string, Set<string>>();
     data.forEach((p) => {
@@ -196,7 +218,7 @@ const App: React.FC = () => {
 
   const allRoutesSummaryPro = useMemo(() => {
     const summary = routeNames.map((name) => {
-      const pts = data.filter((p) => p.routeName === name);
+      const pts = routePointsByName.get(name) ?? [];
       const uniqueStops = new Set(
         pts.map((p) => `${p.lat.toFixed(6)},${p.long.toFixed(6)}`)
       ).size;
@@ -236,7 +258,14 @@ const App: React.FC = () => {
         return multiplier * (a.faturamento.finalPrice - b.faturamento.finalPrice);
       return multiplier * (a[proSortKey] - b[proSortKey]);
     });
-  }, [routeNames, data, pricingParams, proSortKey, proSortDir, routeVehicles]);
+  }, [
+    routeNames,
+    routePointsByName,
+    pricingParams,
+    proSortKey,
+    proSortDir,
+    routeVehicles,
+  ]);
 
   const activeDriverStats = useMemo(() => {
     const filtered =
@@ -277,7 +306,7 @@ const App: React.FC = () => {
   const operationPricingTotal = useMemo(() => {
     return routeNames.reduce(
       (total, name) => {
-        const pts = data.filter((p) => p.routeName === name);
+        const pts = routePointsByName.get(name) ?? [];
         const uniqueStops = new Set(pts.map((p) => `${p.lat},${p.long}`)).size;
         const distKm =
           pts[0].distancia_dentro_rota_km + pts[0].distancia_primeiro_ponto_km;
@@ -312,7 +341,7 @@ const App: React.FC = () => {
         volumeTotalM3: 0,
       }
     );
-  }, [data, routeNames, pricingParams, routeVehicles]);
+  }, [routeNames, routePointsByName, pricingParams, routeVehicles]);
 
   const activeDriverData = useMemo(() => {
     let matches: DriverCost[] = [];
@@ -362,7 +391,7 @@ const App: React.FC = () => {
 
   const auditData = useMemo(() => {
     if (selectedRoute === ALL_VALUE) return null;
-    const plannedPts = data.filter((p) => p.routeName === selectedRoute);
+    const plannedPts = routePointsByName.get(selectedRoute) ?? [];
     const plannedUniqueStops = new Set(
       plannedPts.map((p) => `${p.lat.toFixed(5)},${p.long.toFixed(5)}`)
     ).size;
@@ -394,7 +423,7 @@ const App: React.FC = () => {
       plannedTotal: plannedPricing.finalPrice,
       efficiency: plannedUniqueStops / plannedPts.length,
     };
-  }, [data, selectedRoute, pricingParams, routeVehicles]);
+  }, [selectedRoute, routePointsByName, pricingParams, routeVehicles]);
 
   const updateSide = useCallback(
     (
@@ -429,7 +458,7 @@ const App: React.FC = () => {
       }
 
       uniqueRoutesInView.forEach((routeName) => {
-        let routePts = displayPts.filter((p) => p.routeName === routeName);
+        const routePts = displayPts.filter((p) => p.routeName === routeName);
         const color =
           val === ALL_VALUE ? getRouteColor(routeName, routeNames) : "#6366f1";
         const linePts = isProcessed ? smoothRoute(routePts) : routePts;
@@ -469,38 +498,35 @@ const App: React.FC = () => {
 
         const processedCoords = new Set<string>();
 
+        const fullRoute = routePointsByName.get(routeName) ?? routePts;
+        const uniqueStops = new Set(
+          fullRoute.map((pt) => `${pt.lat},${pt.long}`)
+        ).size;
+        const totalPesoKg = fullRoute.reduce(
+          (sum, pt) => sum + (pt.peso_kg || 0),
+          0
+        );
+        const totalVolumeM3 =
+          fullRoute.reduce((sum, pt) => sum + (pt.volume_cm3 || 0), 0) /
+          1_000_000;
+        const distKm =
+          fullRoute[0].distancia_dentro_rota_km +
+          fullRoute[0].distancia_primeiro_ponto_km;
+        const routeVehicle = routeVehicles[routeName] ?? DEFAULT_ROUTE_VEHICLE;
+        const pricing = calculatePriceEnterprise(
+          distKm,
+          { ...pricingParams, vehicle: routeVehicle },
+          fullRoute.length,
+          uniqueStops,
+          totalPesoKg,
+          totalVolumeM3
+        );
+
         routePts.forEach((p) => {
           const coordKey = `${p.lat.toFixed(6)},${p.long.toFixed(6)}`;
 
           if (isDriverView && processedCoords.has(coordKey)) return;
           processedCoords.add(coordKey);
-
-          const myFullRoute = data.filter((pt) => pt.routeName === p.routeName);
-          const uniqueStops = new Set(
-            myFullRoute.map((pt) => `${pt.lat},${pt.long}`)
-          ).size;
-          const totalPesoKg = myFullRoute.reduce(
-            (sum, pt) => sum + (pt.peso_kg || 0),
-            0
-          );
-          const totalVolumeM3 =
-            myFullRoute.reduce((sum, pt) => sum + (pt.volume_cm3 || 0), 0) /
-            1_000_000;
-
-          const distKm =
-            myFullRoute[0].distancia_dentro_rota_km +
-            myFullRoute[0].distancia_primeiro_ponto_km;
-          const routeVehicle =
-            routeVehicles[p.routeName] ?? DEFAULT_ROUTE_VEHICLE;
-
-          const pricing = calculatePriceEnterprise(
-            distKm,
-            { ...pricingParams, vehicle: routeVehicle },
-            myFullRoute.length,
-            uniqueStops,
-            totalPesoKg,
-            totalVolumeM3
-          );
 
           const displayPrice =
             isDriverView && val !== ALL_VALUE && activeDriverData
@@ -514,9 +540,9 @@ const App: React.FC = () => {
               ? `Condutor: ${p.nome}`
               : `Roteiro: ${p.routeName}`;
 
-          const driverPackagesTotal = data.filter(
-            (pt) => pt.nome === p.nome
-          ).length;
+          const driverPackagesTotal = p.nome
+            ? driverPackageCounts.get(p.nome) || 0
+            : 0;
           const packagesAtThisPoint = coordCounts.get(coordKey) || 1;
           const firstName = p.nome?.split(" ")[0] || "";
 
@@ -555,7 +581,7 @@ const App: React.FC = () => {
                <div class="flex justify-between"><span>${
                  isDriverView ? "Total de pacotes na rota:" : "Pacotes:"
                }</span> <b>${
-            isDriverView ? driverPackagesTotal : myFullRoute.length
+            isDriverView ? driverPackagesTotal : fullRoute.length
           }</b></div>
                ${
                  isDriverView && packagesAtThisPoint > 1
@@ -588,7 +614,15 @@ const App: React.FC = () => {
       });
       return displayPts;
     },
-    [data, routeNames, pricingParams, activeDriverData, routeVehicles]
+    [
+      data,
+      routeNames,
+      routePointsByName,
+      pricingParams,
+      activeDriverData,
+      routeVehicles,
+      driverPackageCounts,
+    ]
   );
 
   useEffect(() => {
@@ -698,7 +732,7 @@ const App: React.FC = () => {
   const proSelection = useMemo(() => {
     if (!data.length) return null;
     if (selectedRoute !== ALL_VALUE) {
-      const pts = data.filter((p) => p.routeName === selectedRoute);
+      const pts = routePointsByName.get(selectedRoute) ?? [];
       if (!pts.length) return null;
       const uniqueStops = new Set(pts.map((p) => `${p.lat},${p.long}`)).size;
       const totalPesoKg = pts.reduce((sum, p) => sum + (p.peso_kg || 0), 0);
@@ -750,8 +784,8 @@ const App: React.FC = () => {
       pricing,
     };
   }, [
-    data,
     selectedRoute,
+    routePointsByName,
     routeVehicles,
     pricingParams,
     operationPricingTotal,
