@@ -15,6 +15,8 @@ export const TABLES = {
   FIXED_FEE: { moto: 5.0, carro: 8.0, van: 15.0, caminhao: 25.0 },
 };
 
+export type PricingTables = typeof TABLES;
+
 export const calculatePriceEnterprise = (
   distKm: number,
   p: PricingParams,
@@ -22,29 +24,30 @@ export const calculatePriceEnterprise = (
   uniqueStops: number = 1,
   totalWeightKg: number = 0,
   totalVolumeM3: number = 0,
-  qtdVeiculos: any = 1
+  qtdVeiculos: any = 1,
+  tables: PricingTables = TABLES
 ): PricingResult => {
   // 1. Cálculo Base (D x C_km)
-  const c_km = TABLES.C_KM[p.vehicle];
+  const c_km = tables.C_KM[p.vehicle];
   const baseDistance = distKm * c_km;
   const baseWeight = totalWeightKg * p.pricePerKg;
   const baseVolume = totalVolumeM3 * p.pricePerM3;
   // 2. Multiplicadores
   // const V = TABLES.V_FACTOR[p.vehicle];
-  const T = TABLES.TRAFFIC[p.traffic];
-  const C = TABLES.CLIMATE[p.climate];
-  const SLA = TABLES.SLA[p.sla];
-  const R = TABLES.RISK[p.risk];
+  const T = tables.TRAFFIC[p.traffic];
+  const C = tables.CLIMATE[p.climate];
+  const SLA = tables.SLA[p.sla];
+  const R = tables.RISK[p.risk];
 
   let S = 1.0;
   S = p.pedidos / p.motoristas;
 
   const multipliersProduct = T * C * S * SLA * R;
-  let F = TABLES.FIXED_FEE[p.vehicle];
+  let F = tables.FIXED_FEE[p.vehicle];
   if (qtdVeiculos !== 1) {
     F = 0;
     for (let key in qtdVeiculos) {
-      F += TABLES.FIXED_FEE[qtdVeiculos[key]];
+      F += tables.FIXED_FEE[qtdVeiculos[key]];
     }
   }
 

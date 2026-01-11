@@ -90,15 +90,45 @@ const App: React.FC = () => {
     pricePerM3: 10,
     packagePriceSamePoint: 1,
   });
+  const [vehicleCosts, setVehicleCosts] = useState(() => ({ ...TABLES.C_KM }));
+  const [vehicleFixedFees, setVehicleFixedFees] = useState(() => ({
+    ...TABLES.FIXED_FEE,
+  }));
   const [routeVehicles, setRouteVehicles] = useState<
     Record<string, VehicleType>
   >({});
+
+  const pricingTables = useMemo(
+    () => ({
+      ...TABLES,
+      C_KM: vehicleCosts,
+      FIXED_FEE: vehicleFixedFees,
+    }),
+    [vehicleCosts, vehicleFixedFees]
+  );
 
   const updatePricingParam = useCallback(
     <K extends keyof PricingParams>(key: K, value: PricingParams[K]) => {
       setPricingParams((prev) => ({
         ...prev,
         [key]: value,
+      }));
+    },
+    []
+  );
+
+  const updateVehicleCost = useCallback((vehicle: VehicleType, value: number) => {
+    setVehicleCosts((prev) => ({
+      ...prev,
+      [vehicle]: value,
+    }));
+  }, []);
+
+  const updateVehicleFixedFee = useCallback(
+    (vehicle: VehicleType, value: number) => {
+      setVehicleFixedFees((prev) => ({
+        ...prev,
+        [vehicle]: value,
       }));
     },
     []
@@ -234,7 +264,9 @@ const App: React.FC = () => {
         pts.length,
         uniqueStops,
         totalPesoKg,
-        totalVolumeM3
+        totalVolumeM3,
+        1,
+        pricingTables
       );
       return {
         nome: name,
@@ -262,6 +294,7 @@ const App: React.FC = () => {
     routeNames,
     routePointsByName,
     pricingParams,
+    pricingTables,
     proSortKey,
     proSortDir,
     routeVehicles,
@@ -321,7 +354,9 @@ const App: React.FC = () => {
           pts.length,
           uniqueStops,
           totalPesoKg,
-          totalVolumeM3
+          totalVolumeM3,
+          1,
+          pricingTables
         );
         return {
           valorTotal: total?.valorTotal + pricing.finalPrice,
@@ -341,7 +376,13 @@ const App: React.FC = () => {
         volumeTotalM3: 0,
       }
     );
-  }, [routeNames, routePointsByName, pricingParams, routeVehicles]);
+  }, [
+    routeNames,
+    routePointsByName,
+    pricingParams,
+    routeVehicles,
+    pricingTables,
+  ]);
 
   const activeDriverData = useMemo(() => {
     let matches: DriverCost[] = [];
@@ -412,7 +453,9 @@ const App: React.FC = () => {
       plannedPts.length,
       plannedUniqueStops,
       plannedPesoKg,
-      plannedVolumeM3
+      plannedVolumeM3,
+      1,
+      pricingTables
     );
 
     return {
@@ -423,7 +466,13 @@ const App: React.FC = () => {
       plannedTotal: plannedPricing.finalPrice,
       efficiency: plannedUniqueStops / plannedPts.length,
     };
-  }, [selectedRoute, routePointsByName, pricingParams, routeVehicles]);
+  }, [
+    selectedRoute,
+    routePointsByName,
+    pricingParams,
+    routeVehicles,
+    pricingTables,
+  ]);
 
   const updateSide = useCallback(
     (
@@ -519,7 +568,9 @@ const App: React.FC = () => {
           fullRoute.length,
           uniqueStops,
           totalPesoKg,
-          totalVolumeM3
+          totalVolumeM3,
+          1,
+          pricingTables
         );
 
         routePts.forEach((p) => {
@@ -619,6 +670,7 @@ const App: React.FC = () => {
       routeNames,
       routePointsByName,
       pricingParams,
+      pricingTables,
       activeDriverData,
       routeVehicles,
       driverPackageCounts,
@@ -747,7 +799,9 @@ const App: React.FC = () => {
         pts.length,
         uniqueStops,
         totalPesoKg,
-        totalVolumeM3
+        totalVolumeM3,
+        1,
+        pricingTables
       );
       return {
         label: `Projeção: ${selectedRoute}`,
@@ -772,7 +826,8 @@ const App: React.FC = () => {
       paradas,
       totalPesoKg,
       totalVolumeM3,
-      routeVehicles
+      routeVehicles,
+      pricingTables
     );
     return {
       label: "Total Projetado (Operação)",
@@ -789,6 +844,7 @@ const App: React.FC = () => {
     routeVehicles,
     pricingParams,
     operationPricingTotal,
+    pricingTables,
   ]);
 
   return (
@@ -1311,7 +1367,8 @@ const App: React.FC = () => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                          {Object.keys(TABLES.C_KM).map((key) => {
+                          {Object.keys(vehicleCosts).map((key) => {
+                            const vehicleKey = key as VehicleType;
                             return (
                               <tr
                                 key={key}
@@ -1321,11 +1378,35 @@ const App: React.FC = () => {
                                   {key}
                                 </td>
                                 <td className="p-1 text-center text-xs font-mono font-black text-slate-600">
-                                  {formatCurrency(TABLES.C_KM[key])}
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="0.1"
+                                    value={vehicleCosts[vehicleKey]}
+                                    onChange={(event) =>
+                                      updateVehicleCost(
+                                        vehicleKey,
+                                        Number(event.target.value)
+                                      )
+                                    }
+                                    className="w-full rounded-lg border border-slate-200 px-2 py-1 text-xs font-bold text-center text-slate-700"
+                                  />
                                 </td>
 
                                 <td className="p-1 text-center text-xs font-mono font-black text-slate-600">
-                                  {formatCurrency(TABLES.FIXED_FEE[key])}
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="0.1"
+                                    value={vehicleFixedFees[vehicleKey]}
+                                    onChange={(event) =>
+                                      updateVehicleFixedFee(
+                                        vehicleKey,
+                                        Number(event.target.value)
+                                      )
+                                    }
+                                    className="w-full rounded-lg border border-slate-200 px-2 py-1 text-xs font-bold text-center text-slate-700"
+                                  />
                                 </td>
                               </tr>
                             );
